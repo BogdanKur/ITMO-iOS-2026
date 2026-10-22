@@ -1,16 +1,16 @@
-# ITMO iOS 2026 — лабораторные Богдана
+# ITMO iOS 2026 — Ignatev Alexey — K4140
 
-Все семь работ собираются в основной ветке `main`. Каждая лабораторная оформлена отдельным PR из ветки `lab-1`–`lab-7`. Приложение — **StudyNotes**: сеть реализована в [Lab6](Lab6), версия с тремя unit-тестами и двумя UI-тестами находится в [Lab7](Lab7).
+Все семь работ собираются в основной ветке `main`. Работы сдаются отдельными PR в репозиторий преподавателя `skipperprivate/ITMO-iOS-2026`. Первые шесть идут из веток `lab-1`–`lab-6`, седьмая — из отдельной ветки `lab-7-submission`. Приложение — **StudyNotes**: сеть реализована в [Lab6](Lab6), версия с тремя unit-тестами и двумя UI-тестами находится в [Lab7](Lab7).
 
 | Лаба | Решение | PR |
 | --- | --- | --- |
-| 1 | [Коллекции, геометрия, двоичная куча](Lab1) | [#7](https://github.com/BogdanKur/ITMO-iOS-2026/pull/7) |
-| 2 | [Два экрана и случайное число](Lab2) | [#8](https://github.com/BogdanKur/ITMO-iOS-2026/pull/8) |
-| 3 | [MVVM, Repository, Dependency Injection](Lab3) | [#9](https://github.com/BogdanKur/ITMO-iOS-2026/pull/9) |
-| 4 | [SwiftData + UserDefaults, CRUD](Lab4) | [#10](https://github.com/BogdanKur/ITMO-iOS-2026/pull/10) |
-| 5 | [Два фоновых вычисления](Lab5) | [#11](https://github.com/BogdanKur/ITMO-iOS-2026/pull/11) |
-| 6 | [Alamofire, GET/POST, итоговое приложение](Lab6) | [#12](https://github.com/BogdanKur/ITMO-iOS-2026/pull/12) |
-| 7 | [XCTest: 3 unit-теста и 2 UI-теста](Lab7) | [#13](https://github.com/BogdanKur/ITMO-iOS-2026/pull/13) |
+| 1 | [Коллекции, геометрия, двоичная куча](Lab1) | [#58](https://github.com/skipperprivate/ITMO-iOS-2026/pull/58) |
+| 2 | [Два экрана и случайное число](Lab2) | [#59](https://github.com/skipperprivate/ITMO-iOS-2026/pull/59) |
+| 3 | [MVVM, Repository, Dependency Injection](Lab3) | [#60](https://github.com/skipperprivate/ITMO-iOS-2026/pull/60) |
+| 4 | [SwiftData + UserDefaults, CRUD](Lab4) | [#61](https://github.com/skipperprivate/ITMO-iOS-2026/pull/61) |
+| 5 | [Два фоновых вычисления](Lab5) | [#62](https://github.com/skipperprivate/ITMO-iOS-2026/pull/62) |
+| 6 | [Alamofire, GET/POST, итоговое приложение](Lab6) | [#63](https://github.com/skipperprivate/ITMO-iOS-2026/pull/63) |
+| 7 | [XCTest: 3 unit-теста и 2 UI-теста](Lab7) | [#64](https://github.com/skipperprivate/ITMO-iOS-2026/pull/64) |
 
 ## Открыть с Windows
 
