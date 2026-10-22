@@ -26,10 +26,17 @@ final class DefenseFlowTests: XCTestCase {
         XCTAssertTrue(editBody.waitForExistence(timeout: 5))
         editBody.tap(); editBody.typeText(" updated")
         app.buttons["Сохранить"].tap()
-        XCTAssertTrue(app.staticTexts["Swift concurrency and persistent notes updated"].waitForExistence(timeout: 5))
+        let savedBody = app.staticTexts["detailBody"]
+        XCTAssertTrue(savedBody.waitForExistence(timeout: 5))
+        XCTAssertTrue(savedBody.label.contains("updated"), "Edited content must be visible: " + savedBody.label)
+        let persistedBody = savedBody.label
 
         app.terminate(); app.launch()
         XCTAssertTrue(app.staticTexts[String(title)].waitForExistence(timeout: 10))
+        app.staticTexts[String(title)].tap()
+        XCTAssertTrue(savedBody.waitForExistence(timeout: 5))
+        XCTAssertEqual(savedBody.label, persistedBody)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         app.tabBars.buttons["Настройки"].tap()
         XCTAssertTrue(app.switches["Сначала новые"].waitForExistence(timeout: 5))
         capture("04-settings", app)

@@ -50,6 +50,7 @@ struct NoteDetailView: View {
                     Text(note.title).font(.largeTitle.bold())
                     Text(note.updatedAt, style: .date).font(.caption).foregroundStyle(.secondary)
                     Text(note.body).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
+                        .accessibilityIdentifier("detailBody")
                 }.padding() }
                 .toolbar { Button("Изменить") { editing = true } }
                 .sheet(isPresented: $editing) { NavigationStack { NoteEditorView(model: model, note: note) } }
