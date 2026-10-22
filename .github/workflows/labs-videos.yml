@@ -1,8 +1,5 @@
 name: Labs Xcode Videos
 on:
-  push:
-    branches: [lab-1-video]
-    paths: ['.github/workflows/labs-videos.yml', '.github/scripts/record_lab_video.py', '.github/scripts/VideoDriver.swift']
   workflow_dispatch:
     inputs:
       labs:

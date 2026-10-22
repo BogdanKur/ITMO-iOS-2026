@@ -10,8 +10,16 @@ out.mkdir(exist_ok=True)
 log = (out / 'recording.log').open('w')
 
 def run(args, timeout=60, check=False, cwd=None, name=None):
-    p = subprocess.run([str(a) for a in args], capture_output=True, text=True, timeout=timeout, cwd=cwd)
-    log.write('$ ' + ' '.join(str(a) for a in args) + '\n' + p.stdout + p.stderr + '\n'); log.flush()
+    command = [str(a) for a in args]
+    log.write(time.strftime('%H:%M:%S') + ' START $ ' + ' '.join(command) + '\n'); log.flush()
+    print('START', time.strftime('%H:%M:%S'), command, flush=True)
+    try:
+        p = subprocess.run(command, capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    except subprocess.TimeoutExpired as exc:
+        stdout = exc.stdout.decode(errors='replace') if isinstance(exc.stdout, bytes) else exc.stdout or ''
+        stderr = exc.stderr.decode(errors='replace') if isinstance(exc.stderr, bytes) else exc.stderr or ''
+        p = subprocess.CompletedProcess(command, 124, stdout, stderr + '\nCOMMAND TIMEOUT\n')
+    log.write(time.strftime('%H:%M:%S') + ' END\n' + p.stdout + p.stderr + '\n'); log.flush()
     if name: (out / name).write_text(p.stdout + p.stderr)
     print('command', args[0], 'exit', p.returncode, flush=True)
     if check and p.returncode: raise RuntimeError('Command failed: ' + str(args) + '\n' + p.stderr[-1500:])
@@ -37,7 +45,6 @@ udid = device['udid']
 print('Using', version.strip(), device['name'], flush=True)
 run(['xcrun', 'simctl', 'boot', udid])
 run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=180, check=True)
-run(['xcrun', 'simctl', 'status_bar', udid, 'override', '--time', '9:41', '--batteryState', 'charged', '--batteryLevel', '100'])
 
 # Add only a disposable automation target. Lab sources and existing tests stay unchanged.
 if lab != 7:
