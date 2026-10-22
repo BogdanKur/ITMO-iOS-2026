@@ -46,7 +46,7 @@ version = run(['xcodebuild', '-version'], check=True).stdout
 assert int(version.split()[1].split('.')[0]) >= 26
 run(['swiftc', root / '.github/scripts/NativeScreenRecorder.swift', '-o', root / '.video-screen-recorder'], timeout=120, check=True)
 xcode = Path(run(['xcode-select', '-p']).stdout.strip()).parents[1]
-devices = json.loads(run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']).stdout)['devices']
+devices = json.loads(run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'], timeout=300, check=True).stdout)['devices']
 phones = [d for runtime, values in devices.items() if 'iOS' in runtime for d in values if 'iPhone' in d['name']]
 device = next((d for d in phones if d['name'] == 'iPhone 17 Pro'), phones[0])
 udid = device['udid']
