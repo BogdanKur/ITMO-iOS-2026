@@ -8,18 +8,16 @@ permissions:
   contents: read
 jobs:
   record:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [macos-26, macos-15]
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-26
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare Xcode project
+        run: brew install xcodegen
       - name: Record real Xcode desktop
         run: python3 .github/scripts/xcode_video.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Lab1-Xcode-video-${{ matrix.runner }}
+          name: Lab1-Xcode-video
           path: video-output
