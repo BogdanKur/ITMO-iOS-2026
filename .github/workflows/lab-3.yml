@@ -1,0 +1,58 @@
+name: Lab 3
+on:
+  pull_request:
+    paths: ['Lab3/**', '.github/workflows/lab-3.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lab-3-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate project
+        working-directory: Lab3
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build and test
+        working-directory: Lab3
+        run: |
+          set -o pipefail
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
+          xcodebuild test -parallel-testing-enabled NO -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" build/Build/Products/Debug-iphonesimulator/StudyNotes.app
+          xcrun simctl launch "$DEVICE" com.bogdankur.lab3.StudyNotes
+          sleep 3
+          xcrun simctl io "$DEVICE" screenshot Preview.png
+      - name: Package simulator and project
+        working-directory: Lab3
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent build/Build/Products/Debug-iphonesimulator/StudyNotes.app StudyNotes-simulator.zip
+          zip -r StudyNotes-project.zip Sources Tests project.yml StudyNotes.xcodeproj README.md WINDOWS.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab3-simulator
+          path: Lab3/StudyNotes-simulator.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab3-project
+          path: Lab3/StudyNotes-project.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab3-test-results
+          path: |
+            Lab3/build.log
+            Lab3/TestResults.xcresult
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab3-preview
+          path: Lab3/Preview.png
