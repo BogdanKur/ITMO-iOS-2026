@@ -8,7 +8,11 @@ permissions:
   contents: read
 jobs:
   record:
-    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, macos-15]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -17,5 +21,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Lab1-Xcode-video
+          name: Lab1-Xcode-video-${{ matrix.runner }}
           path: video-output

@@ -10,6 +10,9 @@ def run(args,timeout=50,check=False):
 def apple(script):return run(['osascript','-e',script])
 def snap(name):run(['screencapture','-x',str(out/name)])
 
+available=sorted(Path('/Applications').glob('Xcode_*.app'),key=lambda p:tuple(int(x) for x in p.stem.split('_')[-1].split('.') if x.isdigit()))
+if available:
+    run(['sudo','xcode-select','-s',str(available[-1]/'Contents/Developer')],check=True)
 version=run(['xcodebuild','-version'],check=True).stdout
 (out/'Xcode-version.txt').write_text(version+'\n'+run(['sw_vers']).stdout)
 app=Path(run(['xcode-select','-p']).stdout.strip()).parents[1]
