@@ -1,0 +1,21 @@
+name: Lab 1 Xcode Video
+on:
+  push:
+    branches: [lab-1-video]
+    paths: ['.github/workflows/lab-1-video.yml', '.github/scripts/xcode_video.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  record:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record real Xcode desktop
+        run: python3 .github/scripts/xcode_video.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab1-Xcode-video
+          path: video-output
