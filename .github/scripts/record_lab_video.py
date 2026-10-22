@@ -38,6 +38,9 @@ def inspect(name, app='Xcode'):
     p = apple(f'tell application "System Events" to tell process "{app}" to get entire contents of front window')
     (out / (name + '.txt')).write_text(p.stdout + p.stderr)
 
+available = sorted(Path('/Applications').glob('Xcode_*.app'), key=lambda p: tuple(int(x) for x in p.stem.split('_')[-1].split('.') if x.isdigit()))
+if available:
+    run(['sudo', 'xcode-select', '-s', available[-1] / 'Contents/Developer'], check=True)
 version = run(['xcodebuild', '-version'], check=True).stdout
 (out / 'Xcode-version.txt').write_text(version + '\n' + run(['sw_vers']).stdout)
 assert int(version.split()[1].split('.')[0]) >= 26
@@ -50,7 +53,8 @@ udid = device['udid']
 (out / 'device.json').write_text(json.dumps(device, indent=2))
 print('Using', version.strip(), device['name'], flush=True)
 run(['xcrun', 'simctl', 'boot', udid])
-run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=180, check=True)
+run(['open', '-a', 'Simulator', '--args', '-CurrentDeviceUDID', udid])
+run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=600, check=True)
 
 # Add only a disposable automation target. Lab sources and existing tests stay unchanged.
 if lab != 7:
