@@ -42,12 +42,18 @@ final class DefenseFlowTests: XCTestCase {
         capture("04-settings", app)
         let sort = app.switches["Сначала новые"]
         let previous = sort.value as? String
-        sort.tap()
+        let expected = previous == "1" ? "0" : "1"
+        // SwiftUI may expose the label and control as one wide accessibility element.
+        // Tap the trailing thumb and wait for the change before leaving the app.
+        sort.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", expected), object: sort)
+        wait(for: [changed], timeout: 5)
+        XCUIDevice.shared.press(.home)
         app.terminate(); app.launch()
         app.tabBars.buttons["Настройки"].tap()
         XCTAssertTrue(sort.waitForExistence(timeout: 5))
-        XCTAssertNotEqual(sort.value as? String, previous)
-        sort.tap()
+        XCTAssertEqual(sort.value as? String, expected)
+        sort.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
 
         app.tabBars.buttons["Анализ"].tap()
         XCTAssertTrue(app.navigationBars["Анализ"].waitForExistence(timeout: 5))
