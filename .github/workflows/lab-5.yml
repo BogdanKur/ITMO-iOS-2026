@@ -1,7 +1,5 @@
 name: Lab 5
 on:
-  push:
-    branches: [codex/lab-5]
   pull_request:
     paths: ['Lab5/**', '.github/workflows/lab-5.yml']
   workflow_dispatch:
@@ -28,6 +26,9 @@ jobs:
           set -o pipefail
           DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
           xcodebuild test -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+          xcrun simctl launch "$DEVICE" com.bogdankur.lab5.StudyNotes
+          sleep 3
+          xcrun simctl io "$DEVICE" screenshot Preview.png
       - name: Package simulator and project
         working-directory: Lab5
         run: |
@@ -49,3 +50,7 @@ jobs:
             Lab5/build.log
             Lab5/TestResults.xcresult
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab5-preview
+          path: Lab5/Preview.png
