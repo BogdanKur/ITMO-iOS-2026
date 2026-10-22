@@ -46,14 +46,18 @@ version = run(['xcodebuild', '-version'], check=True).stdout
 assert int(version.split()[1].split('.')[0]) >= 26
 run(['swiftc', root / '.github/scripts/NativeScreenRecorder.swift', '-o', root / '.video-screen-recorder'], timeout=120, check=True)
 xcode = Path(run(['xcode-select', '-p']).stdout.strip()).parents[1]
+simulator = xcode / 'Contents/Developer/Applications/Simulator.app'
 devices = json.loads(run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'], timeout=300, check=True).stdout)['devices']
 phones = [d for runtime, values in devices.items() if 'iOS' in runtime for d in values if 'iPhone' in d['name']]
 device = next((d for d in phones if d['name'] == 'iPhone 17 Pro'), phones[0])
+if lab == 6:
+    stable_phones = [d for runtime, values in devices.items() if 'iOS-18-5' in runtime for d in values if 'iPhone' in d['name']]
+    if stable_phones: device = next((d for d in stable_phones if d['name'] == 'iPhone 16 Pro'), stable_phones[0])
 udid = device['udid']
 (out / 'device.json').write_text(json.dumps(device, indent=2))
 print('Using', version.strip(), device['name'], flush=True)
 run(['xcrun', 'simctl', 'boot', udid])
-run(['open', '-a', 'Simulator', '--args', '-CurrentDeviceUDID', udid])
+run(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', udid])
 run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], timeout=600, check=True)
 
 # Add only a disposable automation target. Lab sources and existing tests stay unchanged.
@@ -153,7 +157,7 @@ try:
     # Keep the actual editor visible behind the actual Simulator.
     apple('tell application "System Events" to tell process "Xcode" to set size of front window to {660, 710}')
     run(['defaults', 'write', 'com.apple.iphonesimulator', 'SimulatorWindowLastScale', '-float', '0.5'])
-    run(['open', '-a', 'Simulator', '--args', '-CurrentDeviceUDID', udid]); time.sleep(5)
+    run(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', udid]); time.sleep(5)
     apple('tell application "Simulator" to activate')
     apple('tell application "System Events" to tell process "Simulator" to set position of front window to {660, 26}')
     apple('tell application "System Events" to tell process "Simulator" to set size of front window to {360, 710}')
