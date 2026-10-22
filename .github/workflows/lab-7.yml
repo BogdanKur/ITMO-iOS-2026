@@ -1,0 +1,60 @@
+name: Lab 7
+on:
+  pull_request:
+    paths: ['Lab7/**', '.github/workflows/lab-7.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lab-7-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: Lab7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Run XCTest
+        run: |
+          set -o pipefail
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
+          xcodebuild test -parallel-testing-enabled NO -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee tests.log
+      - name: Export test evidence
+        if: always()
+        run: |
+          if [ -d TestResults.xcresult ]; then
+            xcrun xcresulttool export attachments --path TestResults.xcresult --output-path Screenshots
+            xcrun xccov view --report TestResults.xcresult > coverage.txt
+          fi
+      - name: Package app and project
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent build/Build/Products/Debug-iphonesimulator/StudyNotes.app StudyNotes-simulator.zip
+          zip -r StudyNotes-project.zip Sources Tests UITests project.yml StudyNotes.xcodeproj README.md WINDOWS.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab7-test-results
+          path: |
+            Lab7/tests.log
+            Lab7/coverage.txt
+            Lab7/TestResults.xcresult
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab7-screens
+          path: Lab7/Screenshots
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab7-simulator
+          path: Lab7/StudyNotes-simulator.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab7-project
+          path: Lab7/StudyNotes-project.zip
