@@ -1,4 +1,4 @@
-import subprocess,time,json
+import subprocess,time,json,threading
 from pathlib import Path
 
 out=Path('video-output');out.mkdir(exist_ok=True)
@@ -21,9 +21,7 @@ def open_file(path,line=1):
     time.sleep(2)
 
 def expand_console():
-    # Drag the real debug-area divider observed at y=600 in the 1024x768 desktop.
-    run([str((out/'drag-console').resolve())])
-    time.sleep(2)
+    apple('tell application "System Events" to tell process "Xcode" to get name of menu items of menu 1 of menu item "Debug Area" of menu "View" of menu bar 1')
 
 version=run(['xcodebuild','-version'],check=True).stdout
 (out/'Xcode-version.txt').write_text(version+'\n'+run(['sw_vers']).stdout)
@@ -113,9 +111,17 @@ open_file('Lab1/Sources/Lab1Demo/main.swift')
 snap('02-editor.png');inspect('editor-window.txt')
 timeline=[]
 def mark(label):timeline.append({'seconds':round(time.monotonic()-started,2),'label':label})
-capture_log=open(out/'capture.log','w')
-recorder=subprocess.Popen(['screencapture','-x','-v','-V','200',str(out/'Lab1-Xcode-raw.mov')],stdout=capture_log,stderr=capture_log)
-started=time.monotonic();time.sleep(2)
+frames_dir=out/'frames';frames_dir.mkdir(exist_ok=True)
+stop_capture=threading.Event();frame_times=[]
+started=time.monotonic()
+def capture_frames():
+    while not stop_capture.is_set():
+        t=time.monotonic()-started
+        name=f'frame-{len(frame_times):06}.jpg'
+        p=subprocess.run(['screencapture','-x','-t','jpg',str(frames_dir/name)],capture_output=True)
+        if p.returncode==0:frame_times.append({'seconds':t,'name':name})
+        stop_capture.wait(max(0,0.25-(time.monotonic()-started-t)))
+worker=threading.Thread(target=capture_frames);worker.start();time.sleep(2)
 mark('Xcode version')
 menu('Xcode','About Xcode');time.sleep(5);snap('03-about.png')
 apple('tell application "System Events" to tell process "Xcode" to key code 53');time.sleep(1)
@@ -138,13 +144,16 @@ mark('Test navigator')
 key('6');time.sleep(9);snap('09-navigator.png')
 mark('Program output')
 open_file('Lab1/Sources/Lab1Demo/main.swift');key('r');time.sleep(12);snap('10-final.png')
+demo=run(['swift','run','Lab1Demo'],cwd='Lab1',timeout=90)
+Path('Lab1/DemoOutput.txt').write_text(demo.stdout)
+(out/'demo-output.txt').write_text(demo.stdout+demo.stderr)
+mark('Saved console output')
+open_file('Lab1/DemoOutput.txt');time.sleep(10);snap('11-output.png')
 mark('End')
 (out/'timeline.json').write_text(json.dumps(timeline,indent=2))
-# screencapture finalizes the movie only when its duration ends normally.
-# Sending SIGTERM discards its temporary recording, so allow the timer to finish.
-recorder.wait(timeout=max(20,220-(time.monotonic()-started)))
-assert (out/'Lab1-Xcode-raw.mov').exists(), 'Screen recording was not finalized'
-capture_log.close()
+stop_capture.set();worker.join(timeout=10)
+(out/'frame-times.json').write_text(json.dumps(frame_times,indent=2))
+assert len(frame_times)>100,'Insufficient captured frames'
 tests=run(['swift','test'],cwd='Lab1',timeout=180)
 (out/'swift-tests.txt').write_text(tests.stdout+tests.stderr)
 demo=run(['swift','run','Lab1Demo'],cwd='Lab1',timeout=60)
