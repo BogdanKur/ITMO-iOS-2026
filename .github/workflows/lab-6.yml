@@ -1,5 +1,8 @@
 name: Lab 6
 on:
+  push:
+    branches: [main]
+    paths: ['Lab6/**', '.github/workflows/lab-6.yml']
   pull_request:
     paths: ['Lab6/**', '.github/workflows/lab-6.yml']
   workflow_dispatch:
