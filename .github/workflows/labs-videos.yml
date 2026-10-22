@@ -6,6 +6,10 @@ on:
         description: 'JSON array of labs to record'
         default: '[2,3,4,5,6,7]'
         required: true
+      runner:
+        description: 'Mac image'
+        default: 'macos-26'
+        required: true
 permissions:
   contents: read
 jobs:
@@ -15,7 +19,7 @@ jobs:
       max-parallel: 3
       matrix:
         lab: ${{ fromJSON(github.event.inputs.labs || '[2]') }}
-    runs-on: macos-26
+    runs-on: ${{ github.event.inputs.runner || 'macos-26' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
