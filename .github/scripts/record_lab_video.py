@@ -127,8 +127,8 @@ def capture():
         except subprocess.TimeoutExpired: pass
         stop.wait(max(0, 1.0 - (time.monotonic() - start - t)))
 worker = None
-if not native_ready:
-    worker = threading.Thread(target=capture, daemon=True); worker.start()
+# Always retain a timestamped backup of the actual desktop.
+worker = threading.Thread(target=capture, daemon=True); worker.start()
 def now(): return round(time.monotonic() - start, 3)
 def hold(label, seconds=6):
     t = now(); time.sleep(seconds); sections.append({'label': label, 'start': t, 'end': now()}); snap(label)
@@ -189,6 +189,13 @@ finally:
     (out / 'frame-times.json').write_text(json.dumps(frames, indent=2))
 
 if native_ready:
+    probe = run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', out / 'desktop.mov'])
+    duration = float(probe.stdout.strip() or 0)
+    expected = sections[-1]['end'] if sections else 0
+    if duration < expected - 5:
+        print('Native capture incomplete; using full timestamped desktop backup', duration, expected, flush=True)
+        native_ready = False
+if native_ready:
     capture_input = ['-i', out / 'desktop.mov']
 else:
     assert len(frames) > 30, 'Screen capture failed'
@@ -202,6 +209,8 @@ else:
     capture_input = ['-f', 'concat', '-safe', '0', '-i', out / 'frames.ffconcat']
 run(['ffmpeg', '-y', '-v', 'error'] + capture_input + ['-vf', 'fps=15',
      '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out / f'Lab{lab}-desktop.mp4'], timeout=300, check=True)
+verified = run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', out / f'Lab{lab}-desktop.mp4'])
+assert float(verified.stdout.strip()) >= sections[-1]['end'] - 3, 'Incomplete encoded desktop video'
 # Avoid a large archive of redundant JPEGs; retain the actual video, timing and evidence.
 shutil.rmtree(frame_dir)
 if (out / 'desktop.mov').exists(): (out / 'desktop.mov').unlink()

@@ -11,6 +11,7 @@ final class DesktopRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
     private let samples = DispatchQueue(label: "desktop.video.samples")
     private var begun = false
     private var stopping = false
+    private var lastTimestamp: CMTime?
 
     func start(path: String) async throws {
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
@@ -20,7 +21,7 @@ final class DesktopRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
         config.width = display.width
         config.height = display.height
         config.minimumFrameInterval = CMTime(value: 1, timescale: 15)
-        config.queueDepth = 3
+        config.queueDepth = 5
         config.showsCursor = true
         let w = try AVAssetWriter(outputURL: URL(fileURLWithPath: path), fileType: .mov)
         let i = AVAssetWriterInput(mediaType: .video, outputSettings: [
@@ -42,12 +43,17 @@ final class DesktopRecorder: NSObject, SCStreamOutput, SCStreamDelegate {
     func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .screen, !stopping, CMSampleBufferIsValid(buffer), CMSampleBufferGetImageBuffer(buffer) != nil,
               let writer, let input else { return }
+        guard let attachments = CMSampleBufferGetSampleAttachmentsArray(buffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
+              let status = attachments.first?[.status] as? Int,
+              status == SCFrameStatus.complete.rawValue else { return }
+        let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+        if let lastTimestamp, CMTimeCompare(timestamp, lastTimestamp) <= 0 { return }
         if !begun {
             guard writer.startWriting() else { return }
             writer.startSession(atSourceTime: CMSampleBufferGetPresentationTimeStamp(buffer))
             begun = true
         }
-        if input.isReadyForMoreMediaData { input.append(buffer) }
+        if input.isReadyForMoreMediaData, input.append(buffer) { lastTimestamp = timestamp }
     }
 
     func stop() async {
