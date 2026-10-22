@@ -1,0 +1,33 @@
+name: Lab 1
+on:
+  push:
+    branches: [codex/lab-1]
+  pull_request:
+    paths: ['Lab1/**', '.github/workflows/lab-1.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lab-1-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test and demonstrate
+        working-directory: Lab1
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee tests.txt
+          swift run Lab1Demo 2>&1 | tee demo.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab1-results
+          path: |
+            Lab1/tests.txt
+            Lab1/demo.txt
+
