@@ -8,7 +8,7 @@ import SwiftUI
             let repository = MemoryNoteRepository()
             _model = StateObject(wrappedValue: NotesViewModel(repository: repository))
             startupError = nil
-        } 
+        }
     }
     var body: some Scene {
         WindowGroup {
