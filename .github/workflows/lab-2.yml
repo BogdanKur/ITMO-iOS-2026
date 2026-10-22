@@ -25,7 +25,9 @@ jobs:
         run: |
           set -o pipefail
           DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
-          xcodebuild test -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+          xcodebuild test -parallel-testing-enabled NO -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" build/Build/Products/Debug-iphonesimulator/StudyNotes.app
           xcrun simctl launch "$DEVICE" com.bogdankur.lab2.StudyNotes
           sleep 3
           xcrun simctl io "$DEVICE" screenshot Preview.png
