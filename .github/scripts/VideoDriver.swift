@@ -59,6 +59,7 @@ final class VideoDriver: XCTestCase {
                 search.tap(); search.typeText("Swift"); sleep(4)
                 if app.buttons["Cancel"].exists { app.buttons["Cancel"].tap() }
                 else if app.buttons["Отменить"].exists { app.buttons["Отменить"].tap() }
+                else if app.buttons["Close"].exists { app.buttons["Close"].tap() }
             }
         }
         if lab >= 6 {

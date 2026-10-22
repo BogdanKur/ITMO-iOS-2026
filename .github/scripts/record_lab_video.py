@@ -1,5 +1,5 @@
 """Record real Xcode/Simulator windows; output contains no captions or overlays."""
-import json, subprocess, sys, threading, time, shutil
+import json, subprocess, sys, threading, time, shutil, os, signal, select
 from pathlib import Path
 
 lab = int(sys.argv[1])
@@ -13,11 +13,16 @@ def run(args, timeout=60, check=False, cwd=None, name=None):
     command = [str(a) for a in args]
     log.write(time.strftime('%H:%M:%S') + ' START $ ' + ' '.join(command) + '\n'); log.flush()
     print('START', time.strftime('%H:%M:%S'), command, flush=True)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=cwd, start_new_session=True)
     try:
-        p = subprocess.run(command, capture_output=True, text=True, timeout=timeout, cwd=cwd)
+        stdout, stderr = process.communicate(timeout=timeout)
+        p = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
     except subprocess.TimeoutExpired as exc:
-        stdout = exc.stdout.decode(errors='replace') if isinstance(exc.stdout, bytes) else exc.stdout or ''
-        stderr = exc.stderr.decode(errors='replace') if isinstance(exc.stderr, bytes) else exc.stderr or ''
+        os.killpg(process.pid, signal.SIGKILL)
+        try: stdout, stderr = process.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            stdout = exc.stdout.decode(errors='replace') if isinstance(exc.stdout, bytes) else exc.stdout or ''
+            stderr = exc.stderr.decode(errors='replace') if isinstance(exc.stderr, bytes) else exc.stderr or ''
         p = subprocess.CompletedProcess(command, 124, stdout, stderr + '\nCOMMAND TIMEOUT\n')
     log.write(time.strftime('%H:%M:%S') + ' END\n' + p.stdout + p.stderr + '\n'); log.flush()
     if name: (out / name).write_text(p.stdout + p.stderr)
@@ -36,6 +41,7 @@ def inspect(name, app='Xcode'):
 version = run(['xcodebuild', '-version'], check=True).stdout
 (out / 'Xcode-version.txt').write_text(version + '\n' + run(['sw_vers']).stdout)
 assert int(version.split()[1].split('.')[0]) >= 26
+run(['swiftc', root / '.github/scripts/NativeScreenRecorder.swift', '-o', root / '.video-screen-recorder'], timeout=120, check=True)
 xcode = Path(run(['xcode-select', '-p']).stdout.strip()).parents[1]
 devices = json.loads(run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']).stdout)['devices']
 phones = [d for runtime, values in devices.items() if 'iOS' in runtime for d in values if 'iPhone' in d['name']]
@@ -101,15 +107,24 @@ inspect('xcode-startup')
 
 frame_dir = out / 'frames'; frame_dir.mkdir(exist_ok=True)
 stop = threading.Event(); frames = []; sections = []
+native_log = (out / 'native-capture.log').open('w')
+native = subprocess.Popen([str(root / '.video-screen-recorder'), str(out / 'desktop.mov')], stdout=subprocess.PIPE, stderr=native_log, text=True)
+native_ready = bool(select.select([native.stdout], [], [], 60)[0]) and native.stdout.readline().strip() == 'CAPTURE_READY'
+if not native_ready:
+    native.kill(); native.wait(timeout=10)
 start = time.monotonic()
 def capture():
     while not stop.is_set():
         t = time.monotonic() - start
         name = f'{len(frames):06}.jpg'
-        p = subprocess.run(['screencapture', '-x', '-t', 'jpg', str(frame_dir / name)], capture_output=True)
-        if p.returncode == 0: frames.append({'seconds': t, 'name': name})
-        stop.wait(max(0, 0.2 - (time.monotonic() - start - t)))
-worker = threading.Thread(target=capture); worker.start()
+        try:
+            p = subprocess.run(['screencapture', '-x', '-t', 'jpg', str(frame_dir / name)], capture_output=True, timeout=5)
+            if p.returncode == 0: frames.append({'seconds': t, 'name': name})
+        except subprocess.TimeoutExpired: pass
+        stop.wait(max(0, 1.0 - (time.monotonic() - start - t)))
+worker = None
+if not native_ready:
+    worker = threading.Thread(target=capture, daemon=True); worker.start()
 def now(): return round(time.monotonic() - start, 3)
 def hold(label, seconds=6):
     t = now(); time.sleep(seconds); sections.append({'label': label, 'start': t, 'end': now()}); snap(label)
@@ -161,22 +176,31 @@ try:
     inspect('test-results'); hold('08-test-results', 8)
     (out / 'result-status.json').write_text(json.dumps({'demo': demo.returncode, 'tests': tests.returncode}))
 finally:
-    stop.set(); worker.join(timeout=15)
+    stop.set()
+    if worker: worker.join(timeout=15)
+    if native_ready:
+        native.send_signal(signal.SIGUSR1)
+        native.wait(timeout=60)
     (out / 'sections.json').write_text(json.dumps(sections, indent=2))
     (out / 'frame-times.json').write_text(json.dumps(frames, indent=2))
 
-assert len(frames) > 50, 'Screen capture failed'
-concat = []
-for i, item in enumerate(frames):
-    concat.append("file 'frames/" + item['name'] + "'")
-    duration = frames[i+1]['seconds'] - item['seconds'] if i + 1 < len(frames) else .2
-    concat.append('duration ' + str(duration))
-concat.append("file 'frames/" + frames[-1]['name'] + "'")
-(out / 'frames.ffconcat').write_text('\n'.join(concat))
-run(['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', out / 'frames.ffconcat', '-vf', 'fps=15',
+if native_ready:
+    capture_input = ['-i', out / 'desktop.mov']
+else:
+    assert len(frames) > 30, 'Screen capture failed'
+    concat = []
+    for i, item in enumerate(frames):
+        concat.append("file 'frames/" + item['name'] + "'")
+        duration = frames[i+1]['seconds'] - item['seconds'] if i + 1 < len(frames) else 1
+        concat.append('duration ' + str(duration))
+    concat.append("file 'frames/" + frames[-1]['name'] + "'")
+    (out / 'frames.ffconcat').write_text('\n'.join(concat))
+    capture_input = ['-f', 'concat', '-safe', '0', '-i', out / 'frames.ffconcat']
+run(['ffmpeg', '-y', '-v', 'error'] + capture_input + ['-vf', 'fps=15',
      '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out / f'Lab{lab}-desktop.mp4'], timeout=300, check=True)
 # Avoid a large archive of redundant JPEGs; retain the actual video, timing and evidence.
 shutil.rmtree(frame_dir)
+if (out / 'desktop.mov').exists(): (out / 'desktop.mov').unlink()
 for p in out.glob('*.xcresult'):
     run(['xcrun', 'xcresulttool', 'get', 'test-results', 'summary', '--path', p], name=p.stem + '-summary.json')
     shutil.rmtree(p)
