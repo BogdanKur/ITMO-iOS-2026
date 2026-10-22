@@ -8,7 +8,7 @@ final class DefenseFlowTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["StudyNotes"].waitForExistence(timeout: 15))
         capture("01-list", app)
 
-        let title = "Защита " + UUID().uuidString.prefix(8)
+        let title = "Defense " + UUID().uuidString.prefix(8)
         app.buttons["Добавить заметку"].tap()
         let titleField = app.textFields["noteTitle"]
         XCTAssertTrue(titleField.waitForExistence(timeout: 5))
