@@ -24,7 +24,9 @@ protocol HTTPTransport: Sendable { func send(_ request: URLRequest) async throws
 struct AlamofireTransport: HTTPTransport {
     func send(_ request: URLRequest) async throws -> HTTPPayload {
         // Alamofire performs networking and response serialization outside the main actor.
-        let response = await AF.request(request).serializingData(automaticallyCancelling: true).response
+        // Allow empty successful responses through to our explicit data validation.
+        let response = await AF.request(request).serializingData(
+            automaticallyCancelling: true, emptyResponseCodes: Set(200..<300)).response
         if Task.isCancelled { throw CancellationError() }
         guard let http = response.response else {
             if let error = response.error { throw APIError.transport(error.localizedDescription) }

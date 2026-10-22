@@ -33,7 +33,8 @@ jobs:
         working-directory: Lab6
         run: |
           ditto -c -k --sequesterRsrc --keepParent build/Build/Products/Debug-iphonesimulator/StudyNotes.app StudyNotes-simulator.zip
-          zip -r StudyNotes-project.zip Sources Tests project.yml StudyNotes.xcodeproj README.md WINDOWS.md
+          zip -r StudyNotes-project.zip Sources Tests UITests project.yml StudyNotes.xcodeproj README.md WINDOWS.md
+          xcrun xcresulttool export attachments --path TestResults.xcresult --output-path Screenshots
       - uses: actions/upload-artifact@v4
         with:
           name: Lab6-simulator
@@ -54,3 +55,7 @@ jobs:
         with:
           name: Lab6-preview
           path: Lab6/Preview.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab6-screens
+          path: Lab6/Screenshots

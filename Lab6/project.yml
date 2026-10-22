@@ -26,6 +26,11 @@ targets:
     platform: iOS
     sources: [Tests]
     dependencies: [{target: StudyNotes}]
+  StudyNotesUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies: [{target: StudyNotes}]
 schemes:
   StudyNotes:
     build:
@@ -33,7 +38,7 @@ schemes:
         StudyNotes: all
     test:
       gatherCoverageData: true
-      targets: [StudyNotesTests]
+      targets: [StudyNotesTests, StudyNotesUITests]
 packages:
   Alamofire:
     url: https://github.com/Alamofire/Alamofire.git
