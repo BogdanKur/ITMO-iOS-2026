@@ -20,6 +20,11 @@ def open_file(path,line=1):
     run(['xed','--line',str(line),str(Path(path).resolve())])
     time.sleep(2)
 
+def expand_console():
+    # Drag the real debug-area divider observed at y=600 in the 1024x768 desktop.
+    run([str((out/'drag-console').resolve())])
+    time.sleep(2)
+
 version=run(['xcodebuild','-version'],check=True).stdout
 (out/'Xcode-version.txt').write_text(version+'\n'+run(['sw_vers']).stdout)
 app=Path(run(['xcode-select','-p']).stdout.strip()).parents[1]
@@ -65,6 +70,18 @@ schemes:
 '''
 Path('Lab1/project.yml').write_text(spec)
 run(['xcodegen','generate'],cwd='Lab1',check=True)
+mouse='''import AppKit
+let start = CGPoint(x: 820, y: 601)
+CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: start, mouseButton: .left)?.post(tap: .cghidEventTap)
+for i in 1...30 {
+    let point = CGPoint(x: 820, y: 601 - Double(i) * 7.0)
+    CGEvent(mouseEventSource: nil, mouseType: .leftMouseDragged, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+    Thread.sleep(forTimeInterval: 0.02)
+}
+CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: CGPoint(x: 820, y: 391), mouseButton: .left)?.post(tap: .cghidEventTap)
+'''
+(out/'drag-console.swift').write_text(mouse)
+run(['swiftc',str(out/'drag-console.swift'),'-o',str(out/'drag-console')],check=True)
 run(['open','-a',str(app)],check=True)
 time.sleep(8)
 apple('tell application "Xcode" to activate')
@@ -112,6 +129,7 @@ mark('Custom priority queue')
 open_file('Lab1/Sources/Lab1Core/PriorityQueue.swift');time.sleep(10);snap('06-queue.png')
 mark('Run Lab1Demo in Xcode')
 open_file('Lab1/Sources/Lab1Demo/main.swift');key('r');time.sleep(22)
+expand_console()
 snap('07-run.png');inspect('after-run.txt')
 mark('Unit tests')
 open_file('Lab1/Tests/Lab1CoreTests/Lab1Tests.swift');time.sleep(8);key('u');time.sleep(28)
@@ -122,9 +140,10 @@ mark('Program output')
 open_file('Lab1/Sources/Lab1Demo/main.swift');key('r');time.sleep(12);snap('10-final.png')
 mark('End')
 (out/'timeline.json').write_text(json.dumps(timeline,indent=2))
-recorder.terminate()
-try:recorder.wait(timeout=15)
-except subprocess.TimeoutExpired:recorder.kill();recorder.wait()
+# screencapture finalizes the movie only when its duration ends normally.
+# Sending SIGTERM discards its temporary recording, so allow the timer to finish.
+recorder.wait(timeout=max(20,220-(time.monotonic()-started)))
+assert (out/'Lab1-Xcode-raw.mov').exists(), 'Screen recording was not finalized'
 capture_log.close()
 tests=run(['swift','test'],cwd='Lab1',timeout=180)
 (out/'swift-tests.txt').write_text(tests.stdout+tests.stderr)
