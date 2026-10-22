@@ -13,3 +13,5 @@ Workflow также сохраняет **Lab4-project** с исходникам�
 Если Actions отключены для форка: Actions → I understand my workflows, go ahead and enable them, затем повтори запуск. Логи тестов доступны в шаге Build and test. Проверяй, что выбран запуск нужной лабораторной и последнего коммита.
 
 Официальные инструкции: https://docs.appetize.io/platform/app-management/uploading-apps/ios и https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job .
+
+Артефакт **Lab4-preview** содержит Preview.png — снимок реально запущенного приложения после успешных тестов. Его можно открыть на Windows без Appetize. Это статичный снимок, интерактивный запуск доступен через Appetize.
