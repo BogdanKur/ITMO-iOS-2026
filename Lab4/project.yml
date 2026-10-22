@@ -34,4 +34,3 @@ schemes:
     test:
       gatherCoverageData: true
       targets: [StudyNotesTests]
-
