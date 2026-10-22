@@ -1,0 +1,51 @@
+name: Lab 6
+on:
+  push:
+    branches: [codex/lab-6]
+  pull_request:
+    paths: ['Lab6/**', '.github/workflows/lab-6.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lab-6-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate project
+        working-directory: Lab6
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build and test
+        working-directory: Lab6
+        run: |
+          set -o pipefail
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"]))')
+          xcodebuild test -project StudyNotes.xcodeproj -scheme StudyNotes -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath build -resultBundlePath TestResults.xcresult CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+      - name: Package simulator and project
+        working-directory: Lab6
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent build/Build/Products/Debug-iphonesimulator/StudyNotes.app StudyNotes-simulator.zip
+          zip -r StudyNotes-project.zip Sources Tests project.yml StudyNotes.xcodeproj README.md WINDOWS.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab6-simulator
+          path: Lab6/StudyNotes-simulator.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lab6-project
+          path: Lab6/StudyNotes-project.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Lab6-test-results
+          path: |
+            Lab6/build.log
+            Lab6/TestResults.xcresult
+
