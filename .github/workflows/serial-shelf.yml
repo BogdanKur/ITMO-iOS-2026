@@ -10,11 +10,15 @@ on:
         description: 'Record every source file and the real app'
         type: boolean
         default: true
+      runner:
+        description: 'Mac runner image'
+        default: 'macos-15'
+        required: true
 permissions:
   contents: read
 jobs:
   lab:
-    runs-on: macos-15
+    runs-on: ${{ inputs.runner || 'macos-15' }}
     timeout-minutes: 55
     strategy:
       fail-fast: false
