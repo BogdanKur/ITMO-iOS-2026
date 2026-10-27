@@ -1,0 +1,2 @@
+Data and poster images: TVmaze (https://www.tvmaze.com/api), CC BY-SA.
+Source URLs are included in catalog.json. Snapshot used for labs 2–5 and isolated UI tests; live catalogue in labs 6–7.

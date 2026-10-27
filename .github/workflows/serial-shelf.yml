@@ -1,0 +1,37 @@
+name: SerialShelf Build and Videos
+on:
+  workflow_dispatch:
+    inputs:
+      labs:
+        description: 'JSON array of laboratory numbers'
+        required: true
+        default: '[1,2,3,4,5,6,7]'
+      record:
+        description: 'Record every source file and the real app'
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  lab:
+    runs-on: macos-15
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        number: ${{ fromJSON(inputs.labs) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: brew install xcodegen ffmpeg
+      - name: Build, run XCTest and record Xcode
+        env:
+          RECORD_VIDEO: ${{ inputs.record }}
+        run: python3 .github/scripts/record_shelf.py ${{ matrix.number }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SerialShelf-Lab${{ matrix.number }}
+          path: shelf-output
+          retention-days: 30
