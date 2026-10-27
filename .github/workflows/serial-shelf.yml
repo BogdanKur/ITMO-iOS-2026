@@ -1,5 +1,8 @@
 name: SerialShelf Build and Videos
 on:
+  push:
+    branches: [serial-shelf]
+    paths: ['.github/workflows/serial-shelf.yml']
   workflow_dispatch:
     inputs:
       labs:
@@ -20,7 +23,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        number: ${{ fromJSON(inputs.labs) }}
+        number: ${{ fromJSON(inputs.labs || '[2,3,4,5,6,7]') }}
     steps:
       - uses: actions/checkout@v4
       - name: Install tools
