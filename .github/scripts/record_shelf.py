@@ -39,6 +39,7 @@ run(['sw_vers'], name='macOS-version.txt')
 
 if lab == 1:
     spec='''name: Lab1
+fileGroups: [Package.swift, project.yml]
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -188,7 +189,14 @@ try:
     files=[project/'project.yml']+([project/'Package.swift'] if lab==1 else [])+files
     manifest=[]
     for index,path in enumerate(files):
-        run(['xed','--line','1',path]);time.sleep(2)
+        if path.name=='Package.swift':
+            apple('tell application "System Events" to tell process "Xcode" to keystroke "o" using {command down, shift down}')
+            time.sleep(1)
+            apple('tell application "System Events" to tell process "Xcode" to keystroke "Package.swift"')
+            time.sleep(2)
+            apple('tell application "System Events" to tell process "Xcode" to key code 36')
+        else:run(['xed','--line','1',path])
+        time.sleep(2)
         apple('tell application "System Events" to tell process "Xcode" to key code 115 using {command down}')
         time.sleep(.5)
         a=now()
@@ -238,17 +246,16 @@ if (out/'desktop.mov').exists():
     value=run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',out/'desktop.mov'],check=False).stdout
     try:duration=float(value)
     except ValueError:pass
-if duration>=sections[-1]['end']-4:
-    source=['-i',out/'desktop.mov']
-else:
-    assert len(frames)>50
-    concat=[]
-    for i,item in enumerate(frames):
-        concat.append("file 'frames/"+item['name']+"'")
-        concat.append('duration '+str(frames[i+1]['seconds']-item['seconds'] if i+1<len(frames) else 1))
-    concat.append("file 'frames/"+frames[-1]['name']+"'")
-    (out/'frames.ffconcat').write_text('\n'.join(concat))
-    source=['-f','concat','-safe','0','-i',out/'frames.ffconcat']
+# The timestamped screencapture stream is authoritative: it also captures
+# Xcode windows that ScreenCaptureKit sometimes leaves stale on virtual Macs.
+assert len(frames)>50
+concat=[]
+for i,item in enumerate(frames):
+    concat.append("file 'frames/"+item['name']+"'")
+    concat.append('duration '+str(frames[i+1]['seconds']-item['seconds'] if i+1<len(frames) else 1))
+concat.append("file 'frames/"+frames[-1]['name']+"'")
+(out/'frames.ffconcat').write_text('\n'.join(concat))
+source=['-f','concat','-safe','0','-i',out/'frames.ffconcat']
 run(['ffmpeg','-y','-v','error']+source+['-vf','fps=15','-an','-c:v','libx264','-preset','fast','-crf','17','-pix_fmt','yuv420p','-movflags','+faststart',out/f'Lab{lab}-full.mp4'],timeout=600)
 # Keep originals until local quality review; upload video and evidence, not raw JPEGs/results.
 for path in out.glob('*.xcresult'):shutil.rmtree(path)
