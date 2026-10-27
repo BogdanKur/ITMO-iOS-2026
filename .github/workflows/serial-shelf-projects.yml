@@ -1,0 +1,21 @@
+name: SerialShelf Ready Projects
+on:
+  push:
+    branches: [serial-shelf]
+    paths: ['.github/workflows/serial-shelf-projects.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: python3 .github/scripts/package_shelf.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SerialShelf-Ready-Projects
+          path: shelf-projects
+          retention-days: 30

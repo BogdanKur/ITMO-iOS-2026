@@ -1,6 +1,6 @@
 """Real macOS screen recording; whole-file tours with readable overlapping scrolls."""
 from pathlib import Path
-import os, subprocess, json, time, signal, threading, math, shutil, select, sys
+import os, subprocess, json, time, signal, threading, math, shutil, select, sys, zipfile
 
 lab = int(sys.argv[1])
 root = Path.cwd()
@@ -77,6 +77,7 @@ schemes:
       targets: [Lab1CoreTests]
 '''
     (project/'project.yml').write_text(spec)
+    original_spec = spec
     scheme='Lab1Demo'; filename='Lab1.xcodeproj'
     destination=['-destination','platform=macOS']
 else:
@@ -84,6 +85,7 @@ else:
     driver=project/'.recording-driver';driver.mkdir(exist_ok=True)
     (driver/'ShelfVideoDriver.swift').write_text((root/'.github/scripts/ShelfVideoDriver.swift').read_text().replace('LAB_NUMBER',str(lab)))
     spec=(project/'project.yml').read_text()
+    original_spec = spec
     spec=spec.replace('\nschemes:', '''
   ShelfVideoDriver:
     type: bundle.ui-testing
@@ -255,3 +257,12 @@ if (out/'desktop.mov').exists():(out/'desktop.mov').unlink()
 for name in ['recorder','scroll','scroll.swift']:
     (out/name).unlink(missing_ok=True)
 print('READY',lab,'FILES',len(files),'SECTIONS',len(sections),flush=True)
+(project/'project.yml').write_text(original_spec)
+run(['xcodegen','generate'],cwd=project)
+with zipfile.ZipFile(out/f'Lab{lab}-Xcode-project.zip','w',zipfile.ZIP_DEFLATED) as archive:
+    for folder in ['Sources','Tests','UITests','Resources',filename]:
+        for path in (project/folder).rglob('*'):
+            if path.is_file() and 'xcuserdata' not in path.parts:
+                archive.write(path,str(path.relative_to(project)))
+    for name in ['project.yml','Package.swift','README.md','DEFENSE.md','DEFENSE.html']:
+        if (project/name).exists():archive.write(project/name,name)
