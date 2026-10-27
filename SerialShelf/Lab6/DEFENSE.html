@@ -1013,7 +1013,7 @@ import Combine
             guard current == generation else { return }
             shows = result; loaded = true
         } catch is CancellationError { }
-        catch { if current == generation { error = error.localizedDescription } }
+        catch { if current == generation { self.error = error.localizedDescription } }
     }
 }
 
