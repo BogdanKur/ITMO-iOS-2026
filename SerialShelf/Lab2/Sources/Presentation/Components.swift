@@ -30,21 +30,3 @@ struct PosterView: View {
     }
 }
 
-struct ShowCard: View {
-    let show: Show
-    var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
-            PosterView(show: show).frame(height: 224)
-                .overlay(alignment: .topTrailing) {
-                    if let rating = show.rating {
-                        Label(String(format: "%.1f", rating), systemImage: "star.fill")
-                            .font(.caption.bold()).padding(7).background(.black.opacity(0.8), in: Capsule()).padding(8)
-                    }
-                }
-            Text(show.name).font(.headline).lineLimit(2).foregroundStyle(.primary)
-            Text(show.year + " · " + (show.genres.first ?? "Сериал"))
-                .font(.caption).foregroundStyle(.secondary).lineLimit(1)
-        }
-        .accessibilityElement(children: .combine)
-    }
-}

@@ -37,7 +37,7 @@ struct LibraryEntry: Identifiable, Codable, Equatable, Sendable {
 }
 
 enum LibraryError: LocalizedError {
-    case duplicate, missing, invalidRating, invalidEpisodes, longReview
+    case duplicate, missing, invalidRating, invalidEpisodes, longReview, invalidReview
     var errorDescription: String? {
         switch self {
         case .duplicate: return "Этот сериал уже есть в коллекции."
@@ -45,6 +45,7 @@ enum LibraryError: LocalizedError {
         case .invalidRating: return "Оценка должна быть от 0 до 10."
         case .invalidEpisodes: return "Число серий должно быть от 0 до 10000."
         case .longReview: return "Комментарий должен быть не длиннее 2000 символов."
+        case .invalidReview: return "Отзыв должен содержать от 1 до 2000 символов."
         }
     }
 }

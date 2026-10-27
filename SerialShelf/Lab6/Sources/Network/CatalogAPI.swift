@@ -35,7 +35,7 @@ struct CatalogAPI: CatalogService, ReviewService {
 
     func sendReview(show: Show, text: String) async throws -> ReviewReceipt {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty && text.count <= 2000 else { throw LibraryError.longReview }
+        guard !text.isEmpty && text.count <= 2000 else { throw LibraryError.invalidReview }
         var request = URLRequest(url: URL(string: "https://jsonplaceholder.typicode.com/posts")!)
         request.httpMethod = "POST"
         request.timeoutInterval = 20

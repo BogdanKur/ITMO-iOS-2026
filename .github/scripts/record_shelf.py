@@ -183,7 +183,7 @@ try:
     apple('tell application "System Events" to tell process "Xcode" to key code 53')
     # Every delivered Swift source and test is shown from beginning to end.
     files=sorted([p for directory in ['Sources','Tests','UITests'] for p in (project/directory).rglob('*.swift')])
-    if lab==1:files=[project/'Package.swift']+files
+    files=[project/'project.yml']+([project/'Package.swift'] if lab==1 else [])+files
     manifest=[]
     for index,path in enumerate(files):
         run(['xed','--line','1',path]);time.sleep(2)

@@ -1,8 +1,5 @@
 name: SerialShelf Build and Videos
 on:
-  push:
-    branches: [serial-shelf]
-    paths: ['.github/workflows/serial-shelf.yml']
   workflow_dispatch:
     inputs:
       labs:

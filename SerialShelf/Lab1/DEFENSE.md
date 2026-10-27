@@ -1,0 +1,330 @@
+# Защита лабы 1: Swift: заказы, геометрия и очередь
+
+**Ignatev Alexey · K4140**
+
+## Начало рассказа
+
+> «В первой работе решены исходные задания на Swift: обработка заказов, структуры Point/Rectangle и собственная очередь с приоритетом. Это независимый консольный модуль; условие преподавателя сохранено.»
+
+Сначала покажи дерево проекта. Во время показа каждого файла говори по разделам ниже: назначение → ключевые методы → почему такое решение. Для подробного рассказа ставь видео на паузу. Нижних титров в ролике нет.
+
+## Что показать в приложении
+
+Запустить Lab1Demo: суммы [1200,5400,300], долг 2900, Анна с 6600, расстояние 5, прямоугольник 32/24 и очередь 8/5/2/1. Затем открыть отчёт девяти XCTest.
+
+## Файл `Package.swift` — Swift Package
+
+### Что говорить
+
+> «Определяет библиотеку Lab1Core, консольный executable Lab1Demo и тестовый target. Demo зависит от Core. Тесты обращаются к библиотеке независимо от вывода.»
+
+### Почему так / ответ на вопрос
+
+Почему модуль? Чистые функции можно использовать и тестировать отдельно от программы, печатающей результат.
+
+
+## Файл `Sources/Lab1Core/Geometry.swift` — Структуры и вычисляемые свойства
+
+### Что говорить
+
+> «Point.move помечен mutating, поскольку изменяет структуру. hypot вычисляет расстояние; для (3,4) оно равно 5. Equatable/Hashable дают сравнение и использование в Set. Rectangle валидирует ширину/высоту, неверные значения заменяет единицей. area, perimeter и center вычисляются по текущим размерам. contains включает границу. scale меняет размеры, сохраняя origin; неположительный/неконечный коэффициент отклоняется.»
+
+### Почему так / ответ на вопрос
+
+private(set) не позволяет испортить размеры снаружи. Вычисляемая площадь не устаревает. Для 4×2 после scale(2) получается 8×4, площадь 32, периметр 24, центр (4,2).
+
+
+## Файл `Sources/Lab1Core/Orders.swift` — Операции над заказами
+
+### Что говорить
+
+> «Order — неизменяемая структура; promoCode — optional. paidAmounts: filter по isPaid, затем map суммы. unpaidTotal: фильтр неоплаченных и reduce с начальным нулём. customers: map → Set → sorted. promoCodes: compactMap исключает nil, но сохраняет дубликаты. grouped: Dictionary(grouping:by:). bestPaidCustomer группирует только оплаченные заказы, суммирует по клиентам и выбирает максимум; равные суммы разрешаются сравнением имён, пустой набор даёт nil.»
+
+### Почему так / ответ на вопрос
+
+Результаты: оплачено [1200,5400,300], долг 2900, имена Анна/Иван/Олег, лучший клиент Анна с 6600. $0 и $1 — аргументы замыкания; key path \.amount обращается к свойству. Double выбран по условию, для реальных денег обычно требуется десятичное представление.
+
+
+## Файл `Sources/Lab1Core/PriorityQueue.swift` — Очередь на двоичной куче
+
+### Что говорить
+
+> «Массив heap хранит кучу. У элемента i родитель (i-1)/2, дети 2i+1 и 2i+2. enqueue добавляет в конец и поднимает к родителю. dequeue меняет корень с последним, удаляет ответ и опускает новый корень. Компаратор precedes задаёт приоритет; @escaping означает, что замыкание сохраняется после init. Element делает контейнер обобщённым.»
+
+### Почему так / ответ на вопрос
+
+peek — O(1), просеивание — O(log n), память O(n). Очередь с sort: > выдаёт 8,5,2,1 для входа [2,8,1,5]. Это не FIFO. Весь массив не обязан быть отсортирован; равные приоритеты не имеют гарантии стабильности.
+
+
+## Файл `Sources/Lab1Demo/main.swift` — Запуск первой лабораторной
+
+### Что говорить
+
+> «Импортирует Lab1Core, вызывает все операции и печатает результаты. Создаёт Point, масштабирует Rectangle, помещает числа в очередь и извлекает до nil.»
+
+### Почему так / ответ на вопрос
+
+Здесь только демонстрация. Логика находится в Core, поэтому тесты не сравнивают весь текст консоли.
+
+
+## Файл `Tests/Lab1CoreTests/Lab1Tests.swift` — XCTest первой лабораторной
+
+### Что говорить
+
+> «Девять методов проверяют: результаты заказов, пустой ввод, равенство сумм клиентов, перемещение/хеш точки, валидацию и метрики прямоугольника, границы и масштабирование, min/max-кучи с дубликатами, перемежение операций и собственный тип, 1000 элементов.»
+
+### Почему так / ответ на вопрос
+
+XCTAssertEqual сравнивает ожидаемое с фактическим; accuracy задаёт допуск Double. Пустая очередь должна вернуть nil. Количество методов и количество assertions — разные величины.
+
+
+## Частые вопросы по всей работе
+
+- **Где минимум четыре экрана?** Каталог, карточка сериала, моя полка, детали записи, редактор и настройки; с лабы 5 — статистика.
+- **Какие паттерны?** MVVM, Repository, Dependency Injection. Создание зависимостей — в SerialShelfApp.
+- **Почему struct для данных, class для ViewModel?** Данные передаются значениями; экраны наблюдают один объект состояния.
+- **Почему @StateObject и @ObservedObject?** Первый используется в месте создания владельца, второй — для уже переданного объекта.
+- **Где два хранилища?** SwiftData для коллекции и UserDefaults для настройки сортировки/темы.
+- **Где две фоновые операции?** AnalysisViewModel.search и calculate.
+- **Где GET и POST?** CatalogAPI.shows отправляет GET в TVmaze; sendReview — POST в JSONPlaceholder.
+- **Платные ключи нужны?** Нет. Оба сервиса доступны без API-ключа.
+- **Где unit и UI?** Tests содержит изолированные проверки; UITests в лабе 7 — два сценария настоящего приложения.
+- **На Windows можно запустить SwiftUI iPhone-приложение?** Нет, здесь можно читать исходники и смотреть видео. Сборка/Simulator выполняются на Mac. Облачные артефакты содержат готовый Xcode-проект и приложение для симулятора.
+- **Зелёные тесты гарантируют отсутствие любых ошибок?** Нет, они подтверждают конкретные проверенные сценарии.
+
+## Приложение: весь код для подготовки
+
+### Package.swift
+
+```swift
+// swift-tools-version: 5.9
+import PackageDescription
+let package = Package(name: "Lab1", products: [
+    .library(name: "Lab1Core", targets: ["Lab1Core"]),
+    .executable(name: "Lab1Demo", targets: ["Lab1Demo"])
+], targets: [.target(name: "Lab1Core"), .executableTarget(name: "Lab1Demo", dependencies: ["Lab1Core"]),
+             .testTarget(name: "Lab1CoreTests", dependencies: ["Lab1Core"])])
+```
+
+### Sources/Lab1Core/Geometry.swift
+
+```swift
+import Foundation
+public struct Point: Equatable, Hashable, Sendable {
+    public var x: Double
+    public var y: Double
+    public init(x: Double, y: Double) { self.x = x; self.y = y }
+    public mutating func move(byX dx: Double, byY dy: Double) { x += dx; y += dy }
+    public var distanceToOrigin: Double { hypot(x, y) }
+}
+public struct Rectangle: Equatable, Sendable {
+    public var origin: Point
+    public private(set) var width: Double
+    public private(set) var height: Double
+    public init(origin: Point, width: Double, height: Double) {
+        self.origin = origin
+        self.width = width.isFinite && width > 0 ? width : 1
+        self.height = height.isFinite && height > 0 ? height : 1
+    }
+    public var area: Double { width * height }
+    public var perimeter: Double { 2 * (width + height) }
+    public var center: Point { Point(x: origin.x + width / 2, y: origin.y + height / 2) }
+    // Invalid factors leave the rectangle unchanged, preserving positive finite dimensions.
+    public mutating func scale(by factor: Double) {
+        let w = width * factor, h = height * factor
+        guard factor.isFinite, factor > 0, w.isFinite, h.isFinite, w > 0, h > 0 else { return }
+        width = w; height = h
+    }
+    public func contains(_ point: Point) -> Bool {
+        point.x >= origin.x && point.x <= origin.x + width &&
+        point.y >= origin.y && point.y <= origin.y + height
+    }
+}
+```
+
+### Sources/Lab1Core/Orders.swift
+
+```swift
+public struct Order: Equatable, Sendable {
+    public let id: Int
+    public let customer: String
+    public let amount: Double
+    public let isPaid: Bool
+    public let promoCode: String?
+    public init(id: Int, customer: String, amount: Double, isPaid: Bool, promoCode: String?) {
+        self.id = id; self.customer = customer; self.amount = amount
+        self.isPaid = isPaid; self.promoCode = promoCode
+    }
+}
+public enum OrderAnalytics {
+    public static func paidAmounts(_ orders: [Order]) -> [Double] {
+        orders.filter(\.isPaid).map(\.amount)
+    }
+    public static func unpaidTotal(_ orders: [Order]) -> Double {
+        orders.filter { !$0.isPaid }.reduce(0) { $0 + $1.amount }
+    }
+    public static func customers(_ orders: [Order]) -> [String] {
+        Set(orders.map(\.customer)).sorted()
+    }
+    public static func promoCodes(_ orders: [Order]) -> [String] {
+        orders.compactMap(\.promoCode)
+    }
+    public static func grouped(_ orders: [Order]) -> [String: [Order]] {
+        Dictionary(grouping: orders, by: \.customer)
+    }
+    // Equal totals are resolved alphabetically, independently of Dictionary iteration order.
+    public static func bestPaidCustomer(_ orders: [Order]) -> String? {
+        grouped(orders.filter(\.isPaid))
+            .map { (name: $0.key, total: $0.value.reduce(0) { $0 + $1.amount }) }
+            .sorted { $0.total == $1.total ? $0.name < $1.name : $0.total > $1.total }
+            .first?.name
+    }
+    public static let example = [
+        Order(id: 1, customer: "Анна", amount: 1200, isPaid: true, promoCode: "SALE10"),
+        Order(id: 2, customer: "Иван", amount: 800, isPaid: false, promoCode: nil),
+        Order(id: 3, customer: "Анна", amount: 5400, isPaid: true, promoCode: nil),
+        Order(id: 4, customer: "Олег", amount: 300, isPaid: true, promoCode: "NEW"),
+        Order(id: 5, customer: "Иван", amount: 2100, isPaid: false, promoCode: "SALE10")
+    ]
+}
+```
+
+### Sources/Lab1Core/PriorityQueue.swift
+
+```swift
+/// Binary heap. `precedes(a,b)` is true when a must be removed before b.
+/// Equal priorities have unspecified order. The comparator must be a strict ordering.
+public struct PriorityQueue<Element> {
+    private var heap: [Element] = []
+    private let precedes: (Element, Element) -> Bool
+    public init(sort: @escaping (Element, Element) -> Bool) { precedes = sort }
+    public var count: Int { heap.count }
+    public var isEmpty: Bool { heap.isEmpty }
+    public func peek() -> Element? { heap.first }
+    public mutating func enqueue(_ value: Element) {
+        heap.append(value)
+        var child = heap.count - 1
+        while child > 0 {
+            let parent = (child - 1) / 2
+            guard precedes(heap[child], heap[parent]) else { break }
+            heap.swapAt(child, parent); child = parent
+        }
+    }
+    public mutating func dequeue() -> Element? {
+        guard !heap.isEmpty else { return nil }
+        if heap.count == 1 { return heap.removeLast() }
+        heap.swapAt(0, heap.count - 1)
+        let result = heap.removeLast()
+        var parent = 0
+        while parent * 2 + 1 < heap.count {
+            let left = parent * 2 + 1, right = left + 1
+            let best = right < heap.count && precedes(heap[right], heap[left]) ? right : left
+            guard precedes(heap[best], heap[parent]) else { break }
+            heap.swapAt(best, parent); parent = best
+        }
+        return result
+    }
+}
+```
+
+### Sources/Lab1Demo/main.swift
+
+```swift
+import Lab1Core
+let orders = OrderAnalytics.example
+print("Оплаченные суммы:", OrderAnalytics.paidAmounts(orders))
+print("Не оплачено:", OrderAnalytics.unpaidTotal(orders))
+print("Клиенты:", OrderAnalytics.customers(orders))
+print("Промокоды:", OrderAnalytics.promoCodes(orders))
+for name in OrderAnalytics.customers(orders) {
+    print(name, "заказы:", OrderAnalytics.grouped(orders)[name]!.map(\.id))
+}
+print("Лучший клиент:", OrderAnalytics.bestPaidCustomer(orders) ?? "нет")
+var point = Point(x: 3, y: 4)
+print("Расстояние:", point.distanceToOrigin)
+point.move(byX: 1, byY: -1)
+var rectangle = Rectangle(origin: Point(x: 0, y: 0), width: 4, height: 2)
+rectangle.scale(by: 2)
+print("Прямоугольник:", rectangle.area, rectangle.perimeter, rectangle.center, rectangle.contains(point))
+var queue = PriorityQueue<Int>(sort: >)
+[2, 8, 1, 5].forEach { queue.enqueue($0) }
+while let value = queue.dequeue() { print("Приоритет:", value) }
+```
+
+### Tests/Lab1CoreTests/Lab1Tests.swift
+
+```swift
+import XCTest
+@testable import Lab1Core
+final class Lab1Tests: XCTestCase {
+    func testRequiredOrderResults() {
+        let o = OrderAnalytics.example
+        XCTAssertEqual(OrderAnalytics.paidAmounts(o), [1200, 5400, 300])
+        XCTAssertEqual(OrderAnalytics.unpaidTotal(o), 2900)
+        XCTAssertEqual(OrderAnalytics.customers(o), ["Анна", "Иван", "Олег"])
+        XCTAssertEqual(OrderAnalytics.promoCodes(o), ["SALE10", "NEW", "SALE10"])
+        XCTAssertEqual(OrderAnalytics.grouped(o)["Анна"]?.map(\.id), [1, 3])
+        XCTAssertEqual(OrderAnalytics.bestPaidCustomer(o), "Анна")
+    }
+    func testEmptyOrdersAndNoPaidOrders() {
+        XCTAssertEqual(OrderAnalytics.paidAmounts([]), [])
+        XCTAssertEqual(OrderAnalytics.unpaidTotal([]), 0)
+        XCTAssertEqual(OrderAnalytics.customers([]), [])
+        XCTAssertEqual(OrderAnalytics.promoCodes([]), [])
+        XCTAssertTrue(OrderAnalytics.grouped([]).isEmpty)
+        XCTAssertNil(OrderAnalytics.bestPaidCustomer([]))
+        XCTAssertNil(OrderAnalytics.bestPaidCustomer(OrderAnalytics.example.filter { !$0.isPaid }))
+    }
+    func testPaidTieHasDeterministicWinner() {
+        let o = [Order(id: 1, customer: "B", amount: 10, isPaid: true, promoCode: nil),
+                 Order(id: 2, customer: "A", amount: 10, isPaid: true, promoCode: nil)]
+        XCTAssertEqual(OrderAnalytics.bestPaidCustomer(o), "A")
+    }
+    func testPointMoveDistanceAndHash() {
+        var p = Point(x: 3, y: 4)
+        XCTAssertEqual(p.distanceToOrigin, 5, accuracy: 0.000001)
+        p.move(byX: -3, byY: -4)
+        XCTAssertEqual(p, Point(x: 0, y: 0))
+        XCTAssertEqual(Set([p, p]).count, 1)
+    }
+    func testRectangleValidationAndMetrics() {
+        let r = Rectangle(origin: Point(x: 2, y: 3), width: 4, height: 6)
+        XCTAssertEqual(r.area, 24); XCTAssertEqual(r.perimeter, 20)
+        XCTAssertEqual(r.center, Point(x: 4, y: 6))
+        XCTAssertEqual(Rectangle(origin: r.origin, width: 0, height: -2).area, 1)
+        XCTAssertEqual(Rectangle(origin: r.origin, width: .nan, height: .infinity).area, 1)
+    }
+    func testRectangleBoundaryAndScale() {
+        var r = Rectangle(origin: Point(x: -2, y: -1), width: 4, height: 2)
+        XCTAssertTrue(r.contains(Point(x: -2, y: -1)))
+        XCTAssertTrue(r.contains(Point(x: 2, y: 1)))
+        XCTAssertFalse(r.contains(Point(x: 2.1, y: 1)))
+        r.scale(by: 2); XCTAssertEqual(r.area, 32)
+        for f in [0.0, -1, .nan, .infinity] { r.scale(by: f); XCTAssertEqual(r.area, 32) }
+    }
+    func testMinAndMaxHeapsIncludingDuplicates() {
+        let values = [7, -1, 0, 7, 3, 8, 2]
+        var minHeap = PriorityQueue<Int>(sort: <), maxHeap = PriorityQueue<Int>(sort: >)
+        values.forEach { minHeap.enqueue($0); maxHeap.enqueue($0) }
+        XCTAssertEqual(minHeap.peek(), -1); XCTAssertEqual(maxHeap.count, values.count)
+        XCTAssertEqual((0..<values.count).compactMap { _ in minHeap.dequeue() }, values.sorted())
+        XCTAssertEqual((0..<values.count).compactMap { _ in maxHeap.dequeue() }, values.sorted(by: >))
+        XCTAssertTrue(minHeap.isEmpty); XCTAssertNil(minHeap.dequeue()); XCTAssertNil(minHeap.peek())
+    }
+    func testHeapInterleavingAndCustomType() {
+        struct Job { let name: String; let priority: Int }
+        var q = PriorityQueue<Job> { $0.priority > $1.priority }
+        q.enqueue(Job(name: "low", priority: 1)); q.enqueue(Job(name: "high", priority: 10))
+        XCTAssertEqual(q.dequeue()?.name, "high")
+        q.enqueue(Job(name: "medium", priority: 5))
+        XCTAssertEqual(q.dequeue()?.name, "medium"); XCTAssertEqual(q.dequeue()?.name, "low")
+        XCTAssertNil(q.dequeue())
+    }
+    func testLargeHeap() {
+        var q = PriorityQueue<Int>(sort: <)
+        (0..<1000).reversed().forEach { q.enqueue($0) }
+        XCTAssertEqual((0..<1000).compactMap { _ in q.dequeue() }, Array(0..<1000))
+    }
+}
+```
+

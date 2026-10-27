@@ -1,0 +1,737 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Защита лабы 3</title><style>body{font:17px/1.65 Segoe UI,Arial,sans-serif;margin:0;background:#10131c;color:#e7eaf2}main{max-width:1080px;margin:auto;padding:32px}a{color:#ffbd63}h1,h2,h3{line-height:1.3}h2{border-top:1px solid #485066;padding-top:24px;margin-top:38px}blockquote{background:#202939;border-left:4px solid #ffbd63;padding:14px 20px;margin:18px 0}pre{background:#191f2b;padding:16px;overflow:auto;font:14px/1.5 Consolas,monospace;border-radius:8px}code{font-family:Consolas,monospace}td,th{border:1px solid #485066;padding:9px;text-align:left;vertical-align:top}table{border-collapse:collapse;width:100%}nav{position:sticky;top:0;background:#10131cf5;padding:12px;border-bottom:1px solid #485066}details{margin:16px 0}summary{cursor:pointer;color:#ffbd63}li{margin:7px 0}@media print{body{background:white;color:black}nav{display:none}pre{white-space:pre-wrap;font-size:8pt;background:#f5f5f5}blockquote{background:#f0f0f0}a{color:black}h2{break-after:avoid}details{display:block}}</style><main><h1>Защита лабы 3: MVVM, Repository и Dependency Injection</h1>
+<p><strong>Ignatev Alexey · K4140</strong></p>
+<h2>Начало рассказа</h2>
+<blockquote>
+<p>«СериалПолка разделена на Model, View и ViewModel. Репозиторий передаётся через протокол. Пользователь выбирает сериал в каталоге, добавляет на свою полку, меняет статус, оценку и комментарий. В этой версии данные и настройки ещё в памяти.»</p>
+</blockquote>
+<p>Сначала покажи дерево проекта. Во время показа каждого файла говори по разделам ниже: назначение → ключевые методы → почему такое решение. Для подробного рассказа ставь видео на паузу. Нижних титров в ролике нет.</p>
+<h2>Что показать в приложении</h2>
+<p>Открыть Breaking Bad, добавить на полку, открыть личную запись и редактор. Изменить статус, оценку, серии и комментарий. Показать настройки. Уточнить, что после завершения процесса эта версия теряет данные.</p>
+<h2>Файл <code>project.yml</code> — Конфигурация сборки</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«XcodeGen создаёт проект из декларативного описания. targets задают приложение и отдельные модули тестов; scheme определяет сборку и запуск XCTest. Sources и Resources включены в приложение; JSON и постеры копируются в bundle. CODE_SIGNING_ALLOWED=NO нужен для симулятора. Для физического iPhone потребуется настроить подпись своим Team. В 6–7 Alamofire подключён через Swift Package Manager и закреплён на версии 5.10.2.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Почему project.yml? Проект можно воспроизводимо сгенерировать на другом Mac. Готовый .xcodeproj будет также приложен после облачной сборки.</p>
+<h2>Файл <code>Sources/Data/LibraryRepository.swift</code> — Repository и контракт</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«LibraryRepository описывает fetch, save и delete; методы могут бросать ошибку. @MainActor сохраняет одну область изоляции. MemoryLibraryRepository реализует контракт словарём [Int: LibraryEntry]. save по существующему ключу заменяет запись, delete удаляет её.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Протокол позволяет подменить хранилище без изменения ViewModel. В тестах используется память или управляемая ошибка; в приложении с лабы 4 — SwiftData. Memory не сохраняется после завершения процесса.</p>
+<h2>Файл <code>Sources/Data/LocalCatalog.swift</code> — Локальные данные</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«Ищет catalog.json в Bundle.main и декодирует массив Show через JSONDecoder. Если ресурс отсутствует или повреждён, ошибка передаётся в точку входа и показывается отдельный экран.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>В 2–5 это штатный источник каталога. В 6–7 он используется только при явном --ui-testing, чтобы UI-тесты были независимыми от внешнего API. В обычном запуске 6–7 каталог сетевой.</p>
+<h2>Файл <code>Sources/Data/SettingsStore.swift</code> — Наблюдаемые настройки</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«ObservableObject публикует newestFirst и darkMode. didSet пишет изменение в переданный UserDefaults. register задаёт значения по умолчанию, не перезаписывая сохранённые. С defaults:nil в лабе 3 всё остаётся в памяти; с .standard в 4+ настройки постоянные.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Один bool по ключу не требует базы. В тесте передаётся отдельный suiteName, который удаляется после проверки. Не использую synchronize: стандартный API управляет сохранением.</p>
+<h2>Файл <code>Sources/Domain/Show.swift</code> — Предметные модели и правила</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«Show — снимок сериала: id TVmaze, название, год, жанры, описание, длительность серии, рейтинг и источники. Codable нужен для локального JSON и сохранения, Equatable — для сравнений и task(id:), Sendable — для передачи снимков конкурентным задачам. В лабах 3+ LibraryEntry хранит личные данные отдельно от данных каталога. Его id равен show.id, поэтому один сериал соответствует одной записи. WatchStatus — enum допустимых статусов. EntryValidator проверяет оценку 0…10, серии 0…10000, комментарий до 2000 символов.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Оценка 0 означает «не выставлена» и не входит в среднее. Каталожный rating и personalRating различаются. addedAt сохраняется при редактировании, updatedAt обновляется. Статус «Просмотрено» выбирает пользователь; приложение не знает точное число выпущенных серий.</p>
+<h2>Файл <code>Sources/Presentation/CatalogView.swift</code> — Локальный каталог</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«@ObservedObject получает существующую LibraryViewModel. query — локальный @State. Фильтр ищет название без учёта регистра. LazyVGrid строит две колонки карточек, NavigationLink открывает ShowDetailView. searchable связывает строку поиска с query. При пустом результате появляется системная заглушка.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Lazy-контейнер создаёт представления по мере необходимости. Идентификатор show-<id> даёт стабильную точку для UI-теста. На маленьком локальном наборе синхронный фильтр допустим; отдельная фоновая обработка коллекции введена в лабе 5.</p>
+<h2>Файл <code>Sources/Presentation/Components.swift</code> — Общие элементы интерфейса</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«ShelfStyle задаёт акцентный цвет. PosterView сначала ищет локальный постер в asset catalogue, затем использует AsyncImage для сетевой картинки; при отсутствии показывает нейтральный placeholder. GeometryReader подстраивает изображение под размер, scaledToFill заполняет область, clipped обрезает выход за границы. ShowCard объединяет постер, название, год, жанр и рейтинг.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Отдельный компонент устраняет дублирование верстки. Рейтинг форматируется до одного знака. Изображение скрыто от accessibility, а карточка объединяет текст, чтобы не повторять голосом декоративные детали.</p>
+<h2>Файл <code>Sources/Presentation/EntryEditorView.swift</code> — Черновик и проверка ввода</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«В init копия записи помещается в @State draft. Picker выбирает статус, Stepper ограничивает рейтинг и серии, TextEditor редактирует комментарий. Binding $draft.review связывает ввод с черновиком. «Сохранить» вызывает model.update и закрывает sheet только при успехе; «Отмена» закрывает без записи.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Обработка валидации есть и в ViewModel, даже если Stepper ограничивает числа: другие вызовы тоже должны соблюдать правила. Локальная ошибка формы забирается из model.errorMessage, чтобы не открывать второй alert одновременно.</p>
+<h2>Файл <code>Sources/Presentation/LibraryView.swift</code> — Список и детали личной записи</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«LibraryView отображает entries с учётом настройки newestFirst. Свайп вызывает delete. NavigationLink передаёт id, а EntryDetailView ищет актуальную запись в модели: после редактирования детали обновляются. .sheet открывает редактор. savedReview используется UI-тестом для проверки точного сохранённого текста.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>В деталях передаётся id, а не забытая копия записи. Экран явно обрабатывает удаление. Сортировка «сначала новые» означает дату добавления, а не последнего редактирования.</p>
+<h2>Файл <code>Sources/Presentation/LibraryViewModel.swift</code> — MVVM и операции коллекции</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«@Published private(set) entries доступен экранам для чтения. add проверяет дубликат; update находит исходную запись, сохраняет id/show/addedAt, переносит только редактируемые поля, обрезает пробелы комментария и обновляет updatedAt. persist валидирует и сохраняет; reload перечитывает и сортирует. delete вызывает репозиторий. Ошибка попадает в errorMessage.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Состояние UI находится на MainActor. Репозиторий внедряется через init(repository:). View не может произвольно перезаписать entries. После ошибки сохранения/удаления опубликованный список не заменяется выдуманным успешным результатом.</p>
+<h2>Файл <code>Sources/Presentation/SerialShelfApp.swift</code> — Точка входа и создание зависимостей</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«В лабе 2 WindowGroup создаёт RecommendationView. @State number хранит optional-число; Text выводит число или начальную подсказку. NavigationLink передаёт выбранный сериал. Индекс (number-1)%count остаётся в границах массива, пустой каталог проверяется отдельно. В 3+ точка входа создаёт SettingsStore и LibraryViewModel через @StateObject, загружает локальные ресурсы и выбирает репозиторий. RootView организует вкладки через TabView и отдельные NavigationStack.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>StateObject владеет объектом для данной идентичности SwiftUI-представления. Ошибка открытия ресурсов/базы показывает экран ошибки, а не выдаётся за успешно сохранённые данные. В 3 память, в 4+ SwiftData и UserDefaults. В 6+ обычный каталог RemoteCatalogView; --ui-testing явно выбирает LocalCatalog.</p>
+<h2>Файл <code>Sources/Presentation/SettingsView.swift</code> — Настройки и источники</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«Два Toggle меняют порядок и тему через EnvironmentObject. preferredColorScheme в приложении реагирует на darkMode. Раздел «Источники» указывает лицензию и происхождение данных/изображений.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>EnvironmentObject используется для общих настроек во всей иерархии, а не как глобальный singleton. Каталог не предоставляет воспроизведение серий — это органайзер просмотра.</p>
+<h2>Файл <code>Sources/Presentation/ShowDetailView.swift</code> — Карточка сериала</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«Показывает постер, описание, жанры, время серии и каталожный рейтинг. Кнопка add вызывает LibraryViewModel.add. После добавления она становится «В коллекции» и блокируется. Ссылка ведёт к источнику TVmaze. В 6+ ниже находится форма отправки учебного POST.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>Пользовательские поля не записываются в сетевой Show — они лежат в LibraryEntry. Ссылка на источник обеспечивает атрибуцию. Чтобы увидеть POST, нужно прокрутить карточку вниз.</p>
+<h2>Файл <code>Tests/LibraryTests.swift</code> — Три unit-теста модуля</h2>
+<h3>Что говорить</h3>
+<blockquote>
+<p>«Первый проверяет CRUD, дубликат, идентичность, trimming и чтение через другой ViewModel. Второй проверяет неверные и граничные значения. Третий FaultRepository имитирует ошибки read/save/delete и восстановление. @testable import открывает internal API тестам. XCTUnwrap корректно извлекает optional или фиксирует провал.»</p>
+</blockquote>
+<h3>Почему так / ответ на вопрос</h3>
+<p>В лабе 7 это ровно три test-метода; assertions внутри больше. Чтение через второй ViewModel не равно перезапуску процесса — это отдельно проверяется UI. Тестовый репозиторий не скрывает ошибки настоящей базы: тесты изолируют именно ViewModel.</p>
+<h2>Частые вопросы по всей работе</h2>
+<ul>
+<li><strong>Где минимум четыре экрана?</strong> Каталог, карточка сериала, моя полка, детали записи, редактор и настройки; с лабы 5 — статистика.</li>
+<li><strong>Какие паттерны?</strong> MVVM, Repository, Dependency Injection. Создание зависимостей — в SerialShelfApp.</li>
+<li><strong>Почему struct для данных, class для ViewModel?</strong> Данные передаются значениями; экраны наблюдают один объект состояния.</li>
+<li><strong>Почему @StateObject и @ObservedObject?</strong> Первый используется в месте создания владельца, второй — для уже переданного объекта.</li>
+<li><strong>Где два хранилища?</strong> SwiftData для коллекции и UserDefaults для настройки сортировки/темы.</li>
+<li><strong>Где две фоновые операции?</strong> AnalysisViewModel.search и calculate.</li>
+<li><strong>Где GET и POST?</strong> CatalogAPI.shows отправляет GET в TVmaze; sendReview — POST в JSONPlaceholder.</li>
+<li><strong>Платные ключи нужны?</strong> Нет. Оба сервиса доступны без API-ключа.</li>
+<li><strong>Где unit и UI?</strong> Tests содержит изолированные проверки; UITests в лабе 7 — два сценария настоящего приложения.</li>
+<li><strong>На Windows можно запустить SwiftUI iPhone-приложение?</strong> Нет, здесь можно читать исходники и смотреть видео. Сборка/Simulator выполняются на Mac. Облачные артефакты содержат готовый Xcode-проект и приложение для симулятора.</li>
+<li><strong>Зелёные тесты гарантируют отсутствие любых ошибок?</strong> Нет, они подтверждают конкретные проверенные сценарии.</li>
+</ul>
+<h2>Приложение: весь код для подготовки</h2>
+<h3>project.yml</h3>
+<pre><code class="language-yaml">name: SerialShelf
+options:
+  bundleIdPrefix: edu.itmo.ignatev.lab3
+  deploymentTarget:
+    iOS: &quot;17.0&quot;
+settings:
+  base:
+    SWIFT_VERSION: &quot;5.0&quot;
+    CODE_SIGNING_ALLOWED: NO
+    GENERATE_INFOPLIST_FILE: YES
+    TARGETED_DEVICE_FAMILY: &quot;1,2&quot;
+    INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+targets:
+  SerialShelf:
+    type: application
+    platform: iOS
+    sources: [Sources, Resources]
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: edu.itmo.ignatev.lab3.SerialShelf
+      INFOPLIST_KEY_CFBundleDisplayName: СериалПолка 3
+  SerialShelfTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies: [{target: SerialShelf}]
+schemes:
+  SerialShelf:
+    build:
+      targets:
+        SerialShelf: all
+    test:
+      gatherCoverageData: true
+      targets: [SerialShelfTests]
+</code></pre>
+<h3>Sources/Data/LibraryRepository.swift</h3>
+<pre><code class="language-swift">import Foundation
+
+@MainActor protocol LibraryRepository {
+    func fetch() throws -&gt; [LibraryEntry]
+    func save(_ entry: LibraryEntry) throws
+    func delete(id: Int) throws
+}
+
+@MainActor final class MemoryLibraryRepository: LibraryRepository {
+    private var entries: [Int: LibraryEntry] = [:]
+    func fetch() throws -&gt; [LibraryEntry] { Array(entries.values) }
+    func save(_ entry: LibraryEntry) throws { entries[entry.id] = entry }
+    func delete(id: Int) throws { entries[id] = nil }
+}
+</code></pre>
+<h3>Sources/Data/LocalCatalog.swift</h3>
+<pre><code class="language-swift">import Foundation
+
+enum LocalCatalog {
+    static func load(bundle: Bundle = .main) throws -&gt; [Show] {
+        guard let url = bundle.url(forResource: &quot;catalog&quot;, withExtension: &quot;json&quot;) else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        return try JSONDecoder().decode([Show].self, from: Data(contentsOf: url))
+    }
+}
+</code></pre>
+<h3>Sources/Data/SettingsStore.swift</h3>
+<pre><code class="language-swift">import Foundation
+import Combine
+
+@MainActor final class SettingsStore: ObservableObject {
+    private let defaults: UserDefaults?
+    @Published var newestFirst: Bool {
+        didSet { defaults?.set(newestFirst, forKey: &quot;library.newestFirst&quot;) }
+    }
+    @Published var darkMode: Bool {
+        didSet { defaults?.set(darkMode, forKey: &quot;appearance.darkMode&quot;) }
+    }
+
+    init(defaults: UserDefaults? = nil) {
+        self.defaults = defaults
+        defaults?.register(defaults: [&quot;library.newestFirst&quot;: true, &quot;appearance.darkMode&quot;: true])
+        newestFirst = defaults?.bool(forKey: &quot;library.newestFirst&quot;) ?? true
+        darkMode = defaults?.bool(forKey: &quot;appearance.darkMode&quot;) ?? true
+    }
+}
+</code></pre>
+<h3>Sources/Domain/Show.swift</h3>
+<pre><code class="language-swift">import Foundation
+
+struct Show: Identifiable, Codable, Equatable, Sendable {
+    let id: Int
+    let name: String
+    let year: String
+    let genres: [String]
+    let summary: String
+    let runtime: Int
+    let rating: Double?
+    let imageURL: String?
+    let sourceURL: String
+}
+
+enum WatchStatus: String, Codable, CaseIterable, Identifiable, Sendable {
+    case planned = &quot;Хочу посмотреть&quot;
+    case watching = &quot;Смотрю&quot;
+    case finished = &quot;Просмотрено&quot;
+    var id: String { rawValue }
+}
+
+struct LibraryEntry: Identifiable, Codable, Equatable, Sendable {
+    var id: Int { show.id }
+    let show: Show
+    var status: WatchStatus = .planned
+    var personalRating: Int = 0
+    var watchedEpisodes: Int = 0
+    var review: String = &quot;&quot;
+    let addedAt: Date
+    var updatedAt: Date
+
+    init(show: Show, now: Date = Date()) {
+        self.show = show
+        addedAt = now
+        updatedAt = now
+    }
+}
+
+enum LibraryError: LocalizedError {
+    case duplicate, missing, invalidRating, invalidEpisodes, longReview, invalidReview
+    var errorDescription: String? {
+        switch self {
+        case .duplicate: return &quot;Этот сериал уже есть в коллекции.&quot;
+        case .missing: return &quot;Запись больше не существует.&quot;
+        case .invalidRating: return &quot;Оценка должна быть от 0 до 10.&quot;
+        case .invalidEpisodes: return &quot;Число серий должно быть от 0 до 10000.&quot;
+        case .longReview: return &quot;Комментарий должен быть не длиннее 2000 символов.&quot;
+        case .invalidReview: return &quot;Отзыв должен содержать от 1 до 2000 символов.&quot;
+        }
+    }
+}
+
+enum EntryValidator {
+    static func validate(_ entry: LibraryEntry) throws {
+        guard (0...10).contains(entry.personalRating) else { throw LibraryError.invalidRating }
+        guard (0...10000).contains(entry.watchedEpisodes) else { throw LibraryError.invalidEpisodes }
+        guard entry.review.count &lt;= 2000 else { throw LibraryError.longReview }
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/CatalogView.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+struct CatalogView: View {
+    @ObservedObject var library: LibraryViewModel
+    let shows: [Show]
+    @State private var query = &quot;&quot;
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    private var filtered: [Show] {
+        shows.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(&quot;НАЙДИ СВОЮ ИСТОРИЮ&quot;).font(.caption.bold()).foregroundStyle(ShelfStyle.accent)
+                    Text(&quot;Хороший вечер\nначинается здесь&quot;).font(.largeTitle.bold())
+                    Text(&quot;Сохраняй сериалы и следи за просмотром.&quot;).foregroundStyle(.secondary)
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(.top, 10)
+                LazyVGrid(columns: columns, spacing: 22) {
+                    ForEach(filtered) { show in
+                        NavigationLink {
+                            ShowDetailView(show: show, library: library)
+                        } label: { ShowCard(show: show) }.buttonStyle(.plain)
+                        .accessibilityIdentifier(&quot;show-\(show.id)&quot;)
+                    }
+                }
+                if filtered.isEmpty { ContentUnavailableView.search(text: query) }
+                Text(&quot;Данные: TVmaze · CC BY-SA&quot;).font(.caption).foregroundStyle(.secondary)
+            }.padding()
+        }
+        .navigationTitle(&quot;СериалПолка&quot;)
+        .searchable(text: $query, prompt: &quot;Название сериала&quot;)
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/Components.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+enum ShelfStyle {
+    static let accent = Color(red: 1, green: 0.68, blue: 0.25)
+    static let background = Color(red: 0.055, green: 0.065, blue: 0.095)
+}
+
+struct PosterView: View {
+    let show: Show
+    var body: some View {
+        GeometryReader { size in
+            Group {
+                if let local = UIImage(named: &quot;poster-\(show.id)&quot;) {
+                    Image(uiImage: local).resizable().scaledToFill()
+                } else if let address = show.imageURL, let url = URL(string: address) {
+                    AsyncImage(url: url) { image in image.resizable().scaledToFill() }
+                    placeholder: { placeholder }
+                } else { placeholder }
+            }
+            .frame(width: size.size.width, height: size.size.height).clipped()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityHidden(true)
+    }
+    private var placeholder: some View {
+        ZStack {
+            LinearGradient(colors: [.indigo, .black], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Image(systemName: &quot;tv&quot;).font(.largeTitle).foregroundStyle(.white.opacity(0.7))
+        }
+    }
+}
+
+struct ShowCard: View {
+    let show: Show
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            PosterView(show: show).frame(height: 224)
+                .overlay(alignment: .topTrailing) {
+                    if let rating = show.rating {
+                        Label(String(format: &quot;%.1f&quot;, rating), systemImage: &quot;star.fill&quot;)
+                            .font(.caption.bold()).padding(7).background(.black.opacity(0.8), in: Capsule()).padding(8)
+                    }
+                }
+            Text(show.name).font(.headline).lineLimit(2).foregroundStyle(.primary)
+            Text(show.year + &quot; · &quot; + (show.genres.first ?? &quot;Сериал&quot;))
+                .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/EntryEditorView.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+struct EntryEditorView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var model: LibraryViewModel
+    @State private var draft: LibraryEntry
+    @State private var error: String?
+
+    init(entry: LibraryEntry, model: LibraryViewModel) {
+        self.model = model
+        _draft = State(initialValue: entry)
+    }
+
+    var body: some View {
+        Form {
+            Section(draft.show.name) {
+                Picker(&quot;Статус&quot;, selection: $draft.status) {
+                    ForEach(WatchStatus.allCases) { Text($0.rawValue).tag($0) }
+                }.accessibilityIdentifier(&quot;watchStatus&quot;)
+                Stepper(&quot;Оценка: \(draft.personalRating)/10&quot;, value: $draft.personalRating, in: 0...10)
+                    .accessibilityIdentifier(&quot;personalRating&quot;)
+                Text(&quot;0 — оценка не выставлена&quot;).font(.caption).foregroundStyle(.secondary)
+                Stepper(&quot;Серий: \(draft.watchedEpisodes)&quot;, value: $draft.watchedEpisodes, in: 0...10000)
+                    .accessibilityIdentifier(&quot;watchedEpisodes&quot;)
+            }
+            Section(&quot;Комментарий&quot;) {
+                TextEditor(text: $draft.review).frame(minHeight: 130)
+                    .accessibilityIdentifier(&quot;reviewEditor&quot;)
+                Text(&quot;\(draft.review.count)/2000&quot;).font(.caption).foregroundStyle(.secondary)
+            }
+            if let error { Text(error).foregroundStyle(.red) }
+        }
+        .navigationTitle(&quot;Редактирование&quot;).navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) { Button(&quot;Отмена&quot;) { dismiss() } }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(&quot;Сохранить&quot;) {
+                    if model.update(draft) { dismiss() }
+                    else { error = model.errorMessage; model.errorMessage = nil }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/LibraryView.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+struct LibraryView: View {
+    @ObservedObject var model: LibraryViewModel
+    @EnvironmentObject private var settings: SettingsStore
+    private var ordered: [LibraryEntry] {
+        settings.newestFirst ? model.entries : Array(model.entries.reversed())
+    }
+
+    var body: some View {
+        List {
+            if model.entries.isEmpty {
+                ContentUnavailableView(&quot;Твоя полка пока пуста&quot;, systemImage: &quot;bookmark&quot;,
+                    description: Text(&quot;Открой каталог и выбери сериал на вечер.&quot;))
+            }
+            ForEach(ordered) { entry in
+                NavigationLink {
+                    EntryDetailView(id: entry.id, model: model)
+                } label: {
+                    HStack(spacing: 14) {
+                        PosterView(show: entry.show).frame(width: 62, height: 90)
+                        VStack(alignment: .leading, spacing: 7) {
+                            Text(entry.show.name).font(.headline)
+                            Text(entry.status.rawValue).font(.subheadline).foregroundStyle(ShelfStyle.accent)
+                            Text(&quot;Серий: \(entry.watchedEpisodes) · Оценка: \(entry.personalRating)/10&quot;)
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }.padding(.vertical, 5)
+                }.accessibilityIdentifier(&quot;entry-\(entry.id)&quot;)
+                .swipeActions {
+                    Button(&quot;Удалить&quot;, role: .destructive) { model.delete(id: entry.id) }
+                }
+            }
+        }.navigationTitle(&quot;Моя полка&quot;)
+    }
+}
+
+struct EntryDetailView: View {
+    let id: Int
+    @ObservedObject var model: LibraryViewModel
+    @State private var editing = false
+    var body: some View {
+        Group {
+            if let entry = model.entries.first(where: { $0.id == id }) {
+                List {
+                    Section {
+                        Text(entry.show.name).font(.title.bold())
+                        LabeledContent(&quot;Статус&quot;, value: entry.status.rawValue)
+                        LabeledContent(&quot;Моя оценка&quot;, value: &quot;\(entry.personalRating)/10&quot;)
+                        LabeledContent(&quot;Просмотрено серий&quot;, value: String(entry.watchedEpisodes))
+                    }
+                    Section(&quot;Мой комментарий&quot;) {
+                        Text(entry.review.isEmpty ? &quot;Пока без комментария&quot; : entry.review)
+                            .accessibilityIdentifier(&quot;savedReview&quot;)
+                    }
+                    Section { Text(&quot;Добавлено: &quot; + entry.addedAt.formatted(date: .abbreviated, time: .omitted)) }
+                }
+                .toolbar { Button(&quot;Изменить&quot;) { editing = true } }
+                .sheet(isPresented: $editing) { NavigationStack { EntryEditorView(entry: entry, model: model) } }
+            } else { ContentUnavailableView(&quot;Запись удалена&quot;, systemImage: &quot;trash&quot;) }
+        }.navigationTitle(&quot;Мой сериал&quot;).navigationBarTitleDisplayMode(.inline)
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/LibraryViewModel.swift</h3>
+<pre><code class="language-swift">import Foundation
+import Combine
+
+@MainActor final class LibraryViewModel: ObservableObject {
+    @Published private(set) var entries: [LibraryEntry] = []
+    @Published var errorMessage: String?
+    private let repository: any LibraryRepository
+
+    init(repository: any LibraryRepository) {
+        self.repository = repository
+        reload()
+    }
+
+    func reload() {
+        do {
+            entries = try repository.fetch().sorted { $0.addedAt &gt; $1.addedAt }
+            errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func contains(_ show: Show) -&gt; Bool { entries.contains { $0.id == show.id } }
+
+    @discardableResult func add(_ show: Show) -&gt; Bool {
+        guard !contains(show) else { errorMessage = LibraryError.duplicate.localizedDescription; return false }
+        return persist(LibraryEntry(show: show))
+    }
+
+    @discardableResult func update(_ draft: LibraryEntry) -&gt; Bool {
+        guard let original = entries.first(where: { $0.id == draft.id }) else {
+            errorMessage = LibraryError.missing.localizedDescription
+            return false
+        }
+        var entry = original
+        entry.status = draft.status
+        entry.personalRating = draft.personalRating
+        entry.watchedEpisodes = draft.watchedEpisodes
+        entry.review = draft.review.trimmingCharacters(in: .whitespacesAndNewlines)
+        entry.updatedAt = Date()
+        return persist(entry)
+    }
+
+    private func persist(_ entry: LibraryEntry) -&gt; Bool {
+        do {
+            try EntryValidator.validate(entry)
+            try repository.save(entry)
+            reload()
+            return errorMessage == nil
+        } catch { errorMessage = error.localizedDescription; return false }
+    }
+
+    func delete(id: Int) {
+        do { try repository.delete(id: id); reload() }
+        catch { errorMessage = error.localizedDescription }
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/SerialShelfApp.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+@main @MainActor struct SerialShelfApp: App {
+    @StateObject private var settings: SettingsStore
+    @StateObject private var library: LibraryViewModel
+    private let shows: [Show]
+    private let startupError: String?
+
+    init() {
+        _settings = StateObject(wrappedValue: SettingsStore())
+        do {
+            shows = try LocalCatalog.load()
+            _library = StateObject(wrappedValue: LibraryViewModel(repository: MemoryLibraryRepository()))
+            startupError = nil
+        } catch {
+            shows = []
+            _library = StateObject(wrappedValue: LibraryViewModel(repository: MemoryLibraryRepository()))
+            startupError = error.localizedDescription
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                if let startupError {
+                    ContentUnavailableView(&quot;Не удалось открыть данные&quot;, systemImage: &quot;externaldrive.badge.exclamationmark&quot;,
+                        description: Text(startupError + &quot; Данные не удалены. Перезапусти приложение.&quot;))
+                } else { RootView(library: library, shows: shows) }
+            }
+            .environmentObject(settings).tint(ShelfStyle.accent)
+            .preferredColorScheme(settings.darkMode ? .dark : .light)
+        }
+    }
+}
+
+struct RootView: View {
+    @ObservedObject var library: LibraryViewModel
+    let shows: [Show]
+    var body: some View {
+        TabView {
+            NavigationStack {
+                CatalogView(library: library, shows: shows)
+            }.tabItem { Label(&quot;Каталог&quot;, systemImage: &quot;square.grid.2x2&quot;) }
+            NavigationStack { LibraryView(model: library) }
+                .tabItem { Label(&quot;Моя полка&quot;, systemImage: &quot;bookmark&quot;) }
+            
+            NavigationStack { SettingsView() }
+                .tabItem { Label(&quot;Настройки&quot;, systemImage: &quot;slider.horizontal.3&quot;) }
+        }
+        .alert(&quot;Не удалось выполнить действие&quot;, isPresented: Binding(get: { library.errorMessage != nil },
+            set: { if !$0 { library.errorMessage = nil } })) {
+                Button(&quot;OK&quot;) { library.errorMessage = nil }
+            } message: { Text(library.errorMessage ?? &quot;&quot;) }
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/SettingsView.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+struct SettingsView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    var body: some View {
+        Form {
+            Section(&quot;Твоя коллекция&quot;) {
+                Toggle(&quot;Сначала новые&quot;, isOn: $settings.newestFirst).accessibilityIdentifier(&quot;newestFirst&quot;)
+                Toggle(&quot;Тёмное оформление&quot;, isOn: $settings.darkMode).accessibilityIdentifier(&quot;darkMode&quot;)
+            }
+            Section(&quot;СериалПолка&quot;) {
+                Label(&quot;Лабораторная 3&quot;, systemImage: &quot;graduationcap&quot;)
+                Text(&quot;SwiftUI · MVVM · Repository · DI&quot;).font(.footnote)
+                Text(&quot;В этой версии коллекция и настройки хранятся в памяти.&quot;).font(.footnote).foregroundStyle(.secondary)
+            }
+            Section(&quot;Источники&quot;) {
+                Link(&quot;TVmaze · данные и изображения · CC BY-SA&quot;, destination: URL(string: &quot;https://www.tvmaze.com/api&quot;)!)
+                Text(&quot;Каталог не предоставляет просмотр видео и не распространяет серии.&quot;)
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }.navigationTitle(&quot;Настройки&quot;)
+    }
+}
+</code></pre>
+<h3>Sources/Presentation/ShowDetailView.swift</h3>
+<pre><code class="language-swift">import SwiftUI
+
+struct ShowDetailView: View {
+    let show: Show
+    @ObservedObject var library: LibraryViewModel
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                PosterView(show: show).frame(height: 330)
+                Text(show.name).font(.largeTitle.bold())
+                Text(show.year + &quot; · &quot; + show.genres.joined(separator: &quot; / &quot;))
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 24) {
+                    Label(&quot;\(show.runtime) мин / серия&quot;, systemImage: &quot;clock&quot;)
+                    if let rating = show.rating {
+                        Label(String(format: &quot;%.1f&quot;, rating), systemImage: &quot;star.fill&quot;)
+                    }
+                }.font(.subheadline).foregroundStyle(ShelfStyle.accent)
+                Button {
+                    library.add(show)
+                } label: {
+                    Label(library.contains(show) ? &quot;В коллекции&quot; : &quot;Буду смотреть&quot;,
+                          systemImage: library.contains(show) ? &quot;checkmark&quot; : &quot;plus&quot;)
+                        .frame(maxWidth: .infinity).padding(7)
+                }
+                .buttonStyle(.borderedProminent).disabled(library.contains(show))
+                .accessibilityIdentifier(&quot;addToLibrary&quot;)
+                Text(&quot;О сериале&quot;).font(.title2.bold())
+                Text(show.summary).foregroundStyle(.secondary).textSelection(.enabled)
+                if let url = URL(string: show.sourceURL) {
+                    Link(&quot;Информация на TVmaze ↗&quot;, destination: url).font(.footnote)
+                }
+                
+            }.padding()
+        }
+        .navigationTitle(&quot;О сериале&quot;).navigationBarTitleDisplayMode(.inline)
+    }
+}
+</code></pre>
+<h3>Tests/LibraryTests.swift</h3>
+<pre><code class="language-swift">import XCTest
+@testable import SerialShelf
+
+final class LibraryTests: XCTestCase {
+    let show = Show(id: 1, name: &quot;Test Show&quot;, year: &quot;2020&quot;, genres: [&quot;Drama&quot;],
+        summary: &quot;Story&quot;, runtime: 45, rating: 8, imageURL: nil, sourceURL: &quot;https://www.tvmaze.com&quot;)
+
+    @MainActor func testCRUDAndDuplicateProtection() async throws {
+        let repository = MemoryLibraryRepository()
+        let model = LibraryViewModel(repository: repository)
+        XCTAssertTrue(model.add(show))
+        XCTAssertFalse(model.add(show))
+        var draft = try XCTUnwrap(model.entries.first)
+        let addedAt = draft.addedAt
+        draft.status = .finished; draft.personalRating = 9
+        draft.watchedEpisodes = 12; draft.review = &quot;  Great story  &quot;
+        XCTAssertTrue(model.update(draft))
+        let saved = try XCTUnwrap(model.entries.first)
+        XCTAssertEqual(model.entries.count, 1)
+        XCTAssertEqual(saved.id, show.id)
+        XCTAssertEqual(saved.addedAt, addedAt)
+        XCTAssertEqual(saved.review, &quot;Great story&quot;)
+        XCTAssertEqual(LibraryViewModel(repository: repository).entries, [saved])
+        model.delete(id: show.id)
+        XCTAssertTrue(try repository.fetch().isEmpty)
+        XCTAssertTrue(model.entries.isEmpty)
+    }
+
+    @MainActor func testValidationBoundaries() async throws {
+        let repository = MemoryLibraryRepository()
+        let model = LibraryViewModel(repository: repository)
+        XCTAssertTrue(model.add(show))
+        var draft = try XCTUnwrap(model.entries.first)
+        for value in [-1, 11] {
+            draft.personalRating = value
+            XCTAssertFalse(model.update(draft))
+            XCTAssertEqual(model.entries.first?.personalRating, 0)
+        }
+        draft.personalRating = 10; draft.watchedEpisodes = -1
+        XCTAssertFalse(model.update(draft))
+        draft.watchedEpisodes = 10001
+        XCTAssertFalse(model.update(draft))
+        draft.watchedEpisodes = 10000; draft.review = String(repeating: &quot;я&quot;, count: 2001)
+        XCTAssertFalse(model.update(draft))
+        draft.review = String(repeating: &quot;я&quot;, count: 2000)
+        XCTAssertTrue(model.update(draft))
+        XCTAssertNil(model.errorMessage)
+    }
+
+    @MainActor func testRepositoryErrorsAndRecovery() async throws {
+        let repository = FaultRepository()
+        repository.failure = .read
+        let model = LibraryViewModel(repository: repository)
+        XCTAssertNotNil(model.errorMessage)
+        repository.failure = nil; model.reload()
+        XCTAssertNil(model.errorMessage)
+        repository.failure = .save
+        XCTAssertFalse(model.add(show)); XCTAssertTrue(model.entries.isEmpty)
+        repository.failure = nil
+        XCTAssertTrue(model.add(show))
+        repository.failure = .delete
+        model.delete(id: show.id)
+        XCTAssertNotNil(model.errorMessage)
+        XCTAssertEqual(model.entries.count, 1)
+        repository.failure = nil
+        model.delete(id: show.id)
+        XCTAssertTrue(model.entries.isEmpty)
+        XCTAssertNil(model.errorMessage)
+    }
+}
+
+@MainActor private final class FaultRepository: LibraryRepository {
+    enum Operation { case read, save, delete }
+    struct Failure: Error {}
+    var failure: Operation?
+    private var records: [Int: LibraryEntry] = [:]
+    func fetch() throws -&gt; [LibraryEntry] {
+        if failure == .read { throw Failure() }; return Array(records.values)
+    }
+    func save(_ entry: LibraryEntry) throws {
+        if failure == .save { throw Failure() }; records[entry.id] = entry
+    }
+    func delete(id: Int) throws {
+        if failure == .delete { throw Failure() }; records[id] = nil
+    }
+}
+</code></pre>
+</main></html>
