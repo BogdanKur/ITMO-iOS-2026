@@ -1,0 +1,31 @@
+name: SerialShelf Lab 8 SwiftLint
+on:
+  push:
+    branches: [serial-shelf]
+    paths: [.github/workflows/serial-shelf-lint.yml]
+  workflow_dispatch:
+    inputs:
+      fix:
+        description: Apply formatting and autocorrection before validation
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  lint-and-test:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint and build tools
+        run: brew install swiftlint swiftformat xcodegen
+      - name: Lint, generate project and run XCTest
+        env:
+          APPLY_FIX: ${{ inputs.fix || github.event_name == 'push' }}
+        run: python3 .github/scripts/lint_shelf.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SerialShelf-Lab8-SwiftLint
+          path: shelf-lint-output
+          retention-days: 30
