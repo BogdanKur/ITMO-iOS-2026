@@ -1,0 +1,456 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1FDB9513526FD7E4EAC3C432 /* Show.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C212008FA7F341043B86F9C /* Show.swift */; };
+		4C98FBD01934766D05967E69 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649A3E835B12779AE83E75BF /* Components.swift */; };
+		5F6B12C051CDCAC252DDD0E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6713E0FD9CD68C3375FA36E /* Assets.xcassets */; };
+		81ADDD5521FA821221C573CC /* ATTRIBUTION.txt in Resources */ = {isa = PBXBuildFile; fileRef = 70A3C3AC4353D6904EFC5948 /* ATTRIBUTION.txt */; };
+		83CC1D878B568C006B752D6E /* LocalCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B4985C40CD10657EF640FD /* LocalCatalog.swift */; };
+		BD5A0256AF27C6AF4494F21E /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 152288D57DA81FA86232D0B4 /* catalog.json */; };
+		C01095A794B6604D4FDB8BE5 /* SerialShelfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F7C6D79CEAA238280A66D1 /* SerialShelfApp.swift */; };
+		EE72EC1AB8358FDC48E55141 /* RecommendationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23047ED0890761CA2C9DD93 /* RecommendationTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		805AC39C7EC73FD58CF93EC2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36645116A9210F4ECBD5E2AD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2F3EB4EDE6C54A3068E4B28;
+			remoteInfo = SerialShelf;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		04B4985C40CD10657EF640FD /* LocalCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCatalog.swift; sourceTree = "<group>"; };
+		152288D57DA81FA86232D0B4 /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
+		649A3E835B12779AE83E75BF /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		70A3C3AC4353D6904EFC5948 /* ATTRIBUTION.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ATTRIBUTION.txt; sourceTree = "<group>"; };
+		7C212008FA7F341043B86F9C /* Show.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Show.swift; sourceTree = "<group>"; };
+		B23047ED0890761CA2C9DD93 /* RecommendationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationTests.swift; sourceTree = "<group>"; };
+		C5F7C6D79CEAA238280A66D1 /* SerialShelfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerialShelfApp.swift; sourceTree = "<group>"; };
+		D6713E0FD9CD68C3375FA36E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DA2F39406783A81068F59900 /* SerialShelf.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SerialShelf.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4A8519FDE5111BBE4D0CF7D /* SerialShelfTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SerialShelfTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		202CFA8789405B4BD5751959 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DA2F39406783A81068F59900 /* SerialShelf.app */,
+				F4A8519FDE5111BBE4D0CF7D /* SerialShelfTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		306391DA8143DFEE22851B55 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B23047ED0890761CA2C9DD93 /* RecommendationTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		57B80682E17C9BAF573FAD0B = {
+			isa = PBXGroup;
+			children = (
+				D802F50DFF2CE7E8D91E85A0 /* Resources */,
+				5A95AD4FC8F02625D828504E /* Sources */,
+				306391DA8143DFEE22851B55 /* Tests */,
+				202CFA8789405B4BD5751959 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5A95AD4FC8F02625D828504E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				68D29C925C29D84BD7BD0AB3 /* Data */,
+				AA6FB8FDA491B69A154E2AE3 /* Domain */,
+				5B7DB714F30CDCBC0100BBC3 /* Presentation */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		5B7DB714F30CDCBC0100BBC3 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				649A3E835B12779AE83E75BF /* Components.swift */,
+				C5F7C6D79CEAA238280A66D1 /* SerialShelfApp.swift */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		68D29C925C29D84BD7BD0AB3 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				04B4985C40CD10657EF640FD /* LocalCatalog.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		AA6FB8FDA491B69A154E2AE3 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				7C212008FA7F341043B86F9C /* Show.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		D802F50DFF2CE7E8D91E85A0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D6713E0FD9CD68C3375FA36E /* Assets.xcassets */,
+				70A3C3AC4353D6904EFC5948 /* ATTRIBUTION.txt */,
+				152288D57DA81FA86232D0B4 /* catalog.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		13F9C64D1B4A80FB73BDD303 /* SerialShelfTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D4FC5CEE0447F69C2DB60AF0 /* Build configuration list for PBXNativeTarget "SerialShelfTests" */;
+			buildPhases = (
+				E8CACFD52B2336F85D8CDC9D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A149AE55507E46CCC337A8BE /* PBXTargetDependency */,
+			);
+			name = SerialShelfTests;
+			packageProductDependencies = (
+			);
+			productName = SerialShelfTests;
+			productReference = F4A8519FDE5111BBE4D0CF7D /* SerialShelfTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F2F3EB4EDE6C54A3068E4B28 /* SerialShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AC48C0163D03555AA3CFA174 /* Build configuration list for PBXNativeTarget "SerialShelf" */;
+			buildPhases = (
+				699044E90F1AF81CF9B2E29A /* Sources */,
+				A95634436CB59A739E9EE9BD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SerialShelf;
+			packageProductDependencies = (
+			);
+			productName = SerialShelf;
+			productReference = DA2F39406783A81068F59900 /* SerialShelf.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		36645116A9210F4ECBD5E2AD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = DC07A25E6E5108B6AA0C4319 /* Build configuration list for PBXProject "SerialShelf" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 57B80682E17C9BAF573FAD0B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 202CFA8789405B4BD5751959 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F2F3EB4EDE6C54A3068E4B28 /* SerialShelf */,
+				13F9C64D1B4A80FB73BDD303 /* SerialShelfTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A95634436CB59A739E9EE9BD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81ADDD5521FA821221C573CC /* ATTRIBUTION.txt in Resources */,
+				5F6B12C051CDCAC252DDD0E8 /* Assets.xcassets in Resources */,
+				BD5A0256AF27C6AF4494F21E /* catalog.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		699044E90F1AF81CF9B2E29A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C98FBD01934766D05967E69 /* Components.swift in Sources */,
+				83CC1D878B568C006B752D6E /* LocalCatalog.swift in Sources */,
+				C01095A794B6604D4FDB8BE5 /* SerialShelfApp.swift in Sources */,
+				1FDB9513526FD7E4EAC3C432 /* Show.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E8CACFD52B2336F85D8CDC9D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE72EC1AB8358FDC48E55141 /* RecommendationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A149AE55507E46CCC337A8BE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2F3EB4EDE6C54A3068E4B28 /* SerialShelf */;
+			targetProxy = 805AC39C7EC73FD58CF93EC2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		9D829771CF39CD2FFE573BAD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = edu.itmo.ignatev.lab2.SerialShelfTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SerialShelf.app/SerialShelf";
+			};
+			name = Release;
+		};
+		A1A0324BE4D736413662DBFE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1C321417FC27D11BC5A3BD3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_KEY_CFBundleDisplayName = "СериалПолка 2";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = edu.itmo.ignatev.lab2.SerialShelf;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A36AB637BD05A07B7A0CF75F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_KEY_CFBundleDisplayName = "СериалПолка 2";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = edu.itmo.ignatev.lab2.SerialShelf;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DFD116E343CFCF8C3F228B05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		FF2D643C705F6DB25AD6FFE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = edu.itmo.ignatev.lab2.SerialShelfTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SerialShelf.app/SerialShelf";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AC48C0163D03555AA3CFA174 /* Build configuration list for PBXNativeTarget "SerialShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1C321417FC27D11BC5A3BD3 /* Debug */,
+				A36AB637BD05A07B7A0CF75F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D4FC5CEE0447F69C2DB60AF0 /* Build configuration list for PBXNativeTarget "SerialShelfTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF2D643C705F6DB25AD6FFE1 /* Debug */,
+				9D829771CF39CD2FFE573BAD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DC07A25E6E5108B6AA0C4319 /* Build configuration list for PBXProject "SerialShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1A0324BE4D736413662DBFE /* Debug */,
+				DFD116E343CFCF8C3F228B05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 36645116A9210F4ECBD5E2AD /* Project object */;
+}
