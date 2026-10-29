@@ -1,0 +1,6 @@
+{
+  "lint_exit": 0,
+  "violations": 0,
+  "swift_files": 23,
+  "platform": "Official SwiftLint Linux container on Windows Docker Desktop"
+}

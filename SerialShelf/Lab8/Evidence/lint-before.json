@@ -1,0 +1,119 @@
+[
+  {
+    "character": 97,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Network/CatalogAPI.swift",
+    "line": 26,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 8,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Network/HTTPTransport.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  },
+  {
+    "character": 72,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Network/HTTPTransport.swift",
+    "line": 43,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 8,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Data/SettingsStore.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  },
+  {
+    "character": 8,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/LibraryViewModel.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  },
+  {
+    "character": 54,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/LibraryViewModel.swift",
+    "line": 52,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 8,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/AnalysisViewModel.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  },
+  {
+    "character": 56,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/EntryEditorView.swift",
+    "line": 38,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 8,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/RemoteViewModels.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  },
+  {
+    "character": 40,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/RemoteViewModels.swift",
+    "line": 24,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 77,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/RemoteViewModels.swift",
+    "line": 39,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 38,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Sources/Presentation/RemoteViewModels.swift",
+    "line": 40,
+    "reason": "Else and catch should be on the same line, one space after the previous declaration",
+    "rule_id": "statement_position",
+    "severity": "Warning",
+    "type": "Statement Position"
+  },
+  {
+    "character": 18,
+    "file": "/Users/runner/work/ITMO-iOS-2026/ITMO-iOS-2026/SerialShelf/Lab8/Tests/LibraryTests.swift",
+    "line": 2,
+    "reason": "Imports should be sorted",
+    "rule_id": "sorted_imports",
+    "severity": "Warning",
+    "type": "Sorted Imports"
+  }
+]

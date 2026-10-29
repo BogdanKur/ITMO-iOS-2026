@@ -1,0 +1,4 @@
+Baseline Mac run: https://github.com/BogdanKur/ITMO-iOS-2026/actions/runs/40897035247
+Final strict lint: official ghcr.io/realm/swiftlint:0.65.1 on local Windows Docker Desktop, Linux containers, read-only source mount; exit 0; 23 files; no violations.
+Image digest: sha256:f47e083201e47a136cda5ae847595bfe00226c444ca226fa74fa5dc648a9b057
+No new successful iOS build or XCTest run claimed: Mac CI is still queued at delivery.
