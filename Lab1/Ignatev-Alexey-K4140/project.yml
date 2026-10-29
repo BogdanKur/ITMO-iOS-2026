@@ -1,0 +1,38 @@
+name: Lab1
+fileGroups: [Package.swift, project.yml]
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGNING_ALLOWED: NO
+    GENERATE_INFOPLIST_FILE: YES
+targets:
+  Lab1Core:
+    type: framework
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources: [Sources/Lab1Core]
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: edu.itmo.lab1.core
+  Lab1Demo:
+    type: tool
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources: [Sources/Lab1Demo]
+    dependencies: [{target: Lab1Core}]
+  Lab1CoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources: [Tests/Lab1CoreTests]
+    dependencies: [{target: Lab1Core}]
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: edu.itmo.lab1.tests
+schemes:
+  Lab1Demo:
+    build:
+      targets:
+        Lab1Demo: all
+    run:
+      executable: Lab1Demo
+    test:
+      targets: [Lab1CoreTests]
