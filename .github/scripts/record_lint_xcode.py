@@ -31,12 +31,12 @@ def good():
 # This aggregate target does not require an iOS Simulator to display lint failures.
 spec='''name: Lab8-SwiftLint
 fileGroups: [Sources, Tests, UITests, Scripts, .swiftlint.yml, SwiftLint-installation.txt]
-targets:
+aggregateTargets:
   SwiftLint:
-    type: aggregate
-    platform: macOS
-    deploymentTarget: "15.0"
-    preBuildScripts:
+    targets: []
+    settings:
+      ENABLE_USER_SCRIPT_SANDBOXING: NO
+    buildScripts:
       - name: SwiftLint strict validation
         script: |
           export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -105,13 +105,13 @@ try:
     show(project/'Scripts/lint.sh','Strict SwiftLint build phase script')
     show(project/'Sources/Presentation/AnalysisViewModel.swift','Original imports with violations')
     # The only shared scheme is SwiftLint, so Cmd+B performs the actual lint build.
-    key(98);time.sleep(12);key(53);hold('Xcode Issue Navigator: real SwiftLint errors',10)
+    key(11);time.sleep(12);key(23);hold('Xcode Issue Navigator: real SwiftLint errors',10)
     run(['open','-a',xcode,out/'Before.xcresult']);time.sleep(7);hold('Failed build result: before corrections',9)
     good()
     run(['open','-a',xcode,proj]);time.sleep(3)
     show(project/'Sources/Presentation/AnalysisViewModel.swift','Corrected imports')
     show(project/'Sources/Presentation/RemoteViewModels.swift','Corrected error handling layout')
-    key(98);time.sleep(10);key(53);hold('Xcode Issue Navigator after corrections',7)
+    key(11);time.sleep(10);key(23);hold('Xcode Issue Navigator after corrections',7)
     run(['open','-a',xcode,out/'After.xcresult']);time.sleep(7);hold('Successful strict lint build',9)
 finally:
     good();stop.set();thread.join(timeout=8)
