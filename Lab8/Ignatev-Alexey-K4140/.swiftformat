@@ -1,0 +1,4 @@
+--swift-version 5.9
+--indent 4
+--max-width 120
+--semicolons never

@@ -1,0 +1,19 @@
+included:
+  - Sources
+  - Tests
+  - UITests
+
+# Default SwiftLint rules stay enabled; these two are additional checks.
+opt_in_rules:
+  - empty_count
+  - sorted_imports
+
+# SwiftUI modifiers and XCTest assertions can exceed 120 columns.
+line_length:
+  warning: 140
+  error: 180
+  ignores_urls: true
+  ignores_comments: true
+  ignores_interpolated_strings: true
+
+reporter: xcode
