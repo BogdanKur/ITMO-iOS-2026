@@ -22,10 +22,12 @@ struct CatalogView: View {
                         NavigationLink {
                             ShowDetailView(show: show, library: library)
                         } label: { ShowCard(show: show) }.buttonStyle(.plain)
-                        .accessibilityIdentifier("show-\(show.id)")
+                            .accessibilityIdentifier("show-\(show.id)")
                     }
                 }
-                if filtered.isEmpty { ContentUnavailableView.search(text: query) }
+                if filtered.isEmpty {
+                    ContentUnavailableView.search(text: query)
+                }
                 Text("Данные: TVmaze · CC BY-SA").font(.caption).foregroundStyle(.secondary)
             }.padding()
         }

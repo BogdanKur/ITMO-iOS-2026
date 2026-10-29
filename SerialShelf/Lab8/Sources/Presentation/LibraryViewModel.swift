@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor final class LibraryViewModel: ObservableObject {
     @Published private(set) var entries: [LibraryEntry] = []
@@ -18,7 +18,9 @@ import Combine
         } catch { errorMessage = error.localizedDescription }
     }
 
-    func contains(_ show: Show) -> Bool { entries.contains { $0.id == show.id } }
+    func contains(_ show: Show) -> Bool {
+        entries.contains { $0.id == show.id }
+    }
 
     @discardableResult func add(_ show: Show) -> Bool {
         guard !contains(show) else { errorMessage = LibraryError.duplicate.localizedDescription; return false }
@@ -49,7 +51,6 @@ import Combine
     }
 
     func delete(id: Int) {
-        do { try repository.delete(id: id); reload() }
-        catch { errorMessage = error.localizedDescription }
+        do { try repository.delete(id: id); reload() } catch { errorMessage = error.localizedDescription }
     }
 }

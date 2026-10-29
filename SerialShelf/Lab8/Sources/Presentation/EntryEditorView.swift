@@ -17,10 +17,10 @@ struct EntryEditorView: View {
                 Picker("Статус", selection: $draft.status) {
                     ForEach(WatchStatus.allCases) { Text($0.rawValue).tag($0) }
                 }.accessibilityIdentifier("watchStatus")
-                Stepper("Оценка: \(draft.personalRating)/10", value: $draft.personalRating, in: 0...10)
+                Stepper("Оценка: \(draft.personalRating)/10", value: $draft.personalRating, in: 0 ... 10)
                     .accessibilityIdentifier("personalRating")
                 Text("0 — оценка не выставлена").font(.caption).foregroundStyle(.secondary)
-                Stepper("Серий: \(draft.watchedEpisodes)", value: $draft.watchedEpisodes, in: 0...10000)
+                Stepper("Серий: \(draft.watchedEpisodes)", value: $draft.watchedEpisodes, in: 0 ... 10000)
                     .accessibilityIdentifier("watchedEpisodes")
             }
             Section("Комментарий") {
@@ -28,15 +28,20 @@ struct EntryEditorView: View {
                     .accessibilityIdentifier("reviewEditor")
                 Text("\(draft.review.count)/2000").font(.caption).foregroundStyle(.secondary)
             }
-            if let error { Text(error).foregroundStyle(.red) }
+            if let error {
+                Text(error).foregroundStyle(.red)
+            }
         }
         .navigationTitle("Редактирование").navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Сохранить") {
-                    if model.update(draft) { dismiss() }
-                    else { error = model.errorMessage; model.errorMessage = nil }
+                    if model.update(draft) {
+                        dismiss()
+                    } else {
+                        error = model.errorMessage; model.errorMessage = nil
+                    }
                 }
             }
         }

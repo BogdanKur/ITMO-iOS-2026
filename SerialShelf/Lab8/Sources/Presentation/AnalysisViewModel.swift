@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor final class AnalysisViewModel: ObservableObject {
     @Published private(set) var matches: [LibraryEntry] = []
@@ -16,10 +16,16 @@ import Combine
         let task = Task.detached(priority: .userInitiated) {
             try ShelfAnalysis.search(entries, query: query)
         }
-        defer { if generation == searchGeneration { searching = false } }
+        defer {
+            if generation == searchGeneration {
+                searching = false
+            }
+        }
         do {
-            let result = try await withTaskCancellationHandler(operation: { try await task.value },
-                onCancel: { task.cancel() })
+            let result = try await withTaskCancellationHandler(
+                operation: { try await task.value },
+                onCancel: { task.cancel() }
+            )
             try Task.checkCancellation()
             guard generation == searchGeneration else { return }
             matches = result
@@ -31,10 +37,16 @@ import Combine
         let generation = statisticsGeneration
         calculating = true
         let task = Task.detached(priority: .utility) { try ShelfAnalysis.statistics(entries) }
-        defer { if generation == statisticsGeneration { calculating = false } }
+        defer {
+            if generation == statisticsGeneration {
+                calculating = false
+            }
+        }
         do {
-            let result = try await withTaskCancellationHandler(operation: { try await task.value },
-                onCancel: { task.cancel() })
+            let result = try await withTaskCancellationHandler(
+                operation: { try await task.value },
+                onCancel: { task.cancel() }
+            )
             try Task.checkCancellation()
             guard generation == statisticsGeneration else { return }
             statistics = result

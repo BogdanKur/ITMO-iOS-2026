@@ -19,6 +19,8 @@ run(['swiftlint', 'version'], 'swiftlint-version.txt')
 run(['xcodebuild', '-version'], 'Xcode-version.txt')
 run(['swiftlint', 'rules', '--config', '.swiftlint.yml'], 'rules.txt')
 before = run(['swiftlint', 'lint', '--no-cache', '--reporter', 'json'], 'lint-before.json', False)
+(out / 'lint-before.json').write_text(before.stdout)
+(out / 'lint-before.log').write_text(before.stderr)
 if os.environ.get('APPLY_FIX') == 'true':
     run(['swiftformat', 'Sources', 'Tests', 'UITests'], 'format.log')
     run(['swiftlint', 'lint', '--fix', '--no-cache'], 'autocorrect.log')

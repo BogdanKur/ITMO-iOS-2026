@@ -19,9 +19,17 @@ struct RemoteShow: Decodable {
             .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
             .replacingOccurrences(of: "&amp;", with: "&")
             .replacingOccurrences(of: "&nbsp;", with: " ")
-        return Show(id: id, name: name, year: String((premiered ?? "—").prefix(4)),
-            genres: genres, summary: text, runtime: max(1, averageRuntime ?? runtime ?? 45),
-            rating: rating.average, imageURL: image?.medium, sourceURL: url)
+        return Show(
+            id: id,
+            name: name,
+            year: String((premiered ?? "—").prefix(4)),
+            genres: genres,
+            summary: text,
+            runtime: max(1, averageRuntime ?? runtime ?? 45),
+            rating: rating.average,
+            imageURL: image?.medium,
+            sourceURL: url
+        )
     }
 }
 

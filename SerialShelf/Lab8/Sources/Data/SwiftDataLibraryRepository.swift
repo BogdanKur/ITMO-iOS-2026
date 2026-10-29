@@ -35,7 +35,7 @@ import SwiftData
             if let stored = try context.fetch(query).first {
                 stored.payload = try JSONEncoder().encode(entry)
             } else {
-                context.insert(try StoredEntry(entry: entry))
+                try context.insert(StoredEntry(entry: entry))
             }
             try context.save()
         } catch {
@@ -47,7 +47,9 @@ import SwiftData
     func delete(id: Int) throws {
         do {
             let query = FetchDescriptor<StoredEntry>(predicate: #Predicate { $0.showID == id })
-            if let stored = try context.fetch(query).first { context.delete(stored) }
+            if let stored = try context.fetch(query).first {
+                context.delete(stored)
+            }
             try context.save()
         } catch {
             context.rollback()

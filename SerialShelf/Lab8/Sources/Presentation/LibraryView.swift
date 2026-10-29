@@ -10,8 +10,11 @@ struct LibraryView: View {
     var body: some View {
         List {
             if model.entries.isEmpty {
-                ContentUnavailableView("Твоя полка пока пуста", systemImage: "bookmark",
-                    description: Text("Открой каталог и выбери сериал на вечер."))
+                ContentUnavailableView(
+                    "Твоя полка пока пуста",
+                    systemImage: "bookmark",
+                    description: Text("Открой каталог и выбери сериал на вечер.")
+                )
             }
             ForEach(ordered) { entry in
                 NavigationLink {
@@ -27,9 +30,9 @@ struct LibraryView: View {
                         }
                     }.padding(.vertical, 5)
                 }.accessibilityIdentifier("entry-\(entry.id)")
-                .swipeActions {
-                    Button("Удалить", role: .destructive) { model.delete(id: entry.id) }
-                }
+                    .swipeActions {
+                        Button("Удалить", role: .destructive) { model.delete(id: entry.id) }
+                    }
             }
         }.navigationTitle("Моя полка")
     }
@@ -57,7 +60,9 @@ struct EntryDetailView: View {
                 }
                 .toolbar { Button("Изменить") { editing = true } }
                 .sheet(isPresented: $editing) { NavigationStack { EntryEditorView(entry: entry, model: model) } }
-            } else { ContentUnavailableView("Запись удалена", systemImage: "trash") }
+            } else {
+                ContentUnavailableView("Запись удалена", systemImage: "trash")
+            }
         }.navigationTitle("Мой сериал").navigationBarTitleDisplayMode(.inline)
     }
 }

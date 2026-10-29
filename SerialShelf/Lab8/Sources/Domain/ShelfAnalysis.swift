@@ -21,11 +21,19 @@ enum ShelfAnalysis {
         var finished = 0, minutes = 0, sum = 0, rated = 0
         for entry in entries {
             try Task.checkCancellation()
-            if entry.status == .finished { finished += 1 }
+            if entry.status == .finished {
+                finished += 1
+            }
             minutes += entry.watchedEpisodes * entry.show.runtime
-            if entry.personalRating > 0 { sum += entry.personalRating; rated += 1 }
+            if entry.personalRating > 0 {
+                sum += entry.personalRating; rated += 1
+            }
         }
-        return ShelfStatistics(total: entries.count, finished: finished, minutes: minutes,
-            average: rated == 0 ? nil : Double(sum) / Double(rated))
+        return ShelfStatistics(
+            total: entries.count,
+            finished: finished,
+            minutes: minutes,
+            average: rated == 0 ? nil : Double(sum) / Double(rated)
+        )
     }
 }

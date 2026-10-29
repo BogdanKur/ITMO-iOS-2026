@@ -1,9 +1,11 @@
 import XCTest
 
 final class SerialShelfUITests: XCTestCase {
-    override func setUpWithError() throws { continueAfterFailure = false }
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
 
-    @MainActor func testCollectionCRUDAndRelaunch() throws {
+    @MainActor func testCollectionCRUDAndRelaunch() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing"]
         app.launch()
@@ -12,7 +14,9 @@ final class SerialShelfUITests: XCTestCase {
         XCTAssertTrue(card.waitForExistence(timeout: 15)); card.tap()
         let add = app.buttons["addToLibrary"]
         XCTAssertTrue(add.waitForExistence(timeout: 5))
-        if add.isEnabled { add.tap() }
+        if add.isEnabled {
+            add.tap()
+        }
         app.navigationBars.buttons.element(boundBy: 0).tap()
         app.tabBars.buttons["Моя полка"].tap()
         let row = app.buttons["entry-169"]
@@ -44,7 +48,10 @@ final class SerialShelfUITests: XCTestCase {
         let original = try XCTUnwrap(control.value as? String)
         let changed = original == "1" ? "0" : "1"
         control.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", changed), object: control)
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", changed),
+            object: control
+        )
         wait(for: [expectation], timeout: 5)
         XCUIDevice.shared.press(.home); app.terminate(); app.launch()
         app.tabBars.buttons["Настройки"].tap()

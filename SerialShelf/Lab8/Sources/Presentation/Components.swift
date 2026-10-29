@@ -14,14 +14,17 @@ struct PosterView: View {
                     Image(uiImage: local).resizable().scaledToFill()
                 } else if let address = show.imageURL, let url = URL(string: address) {
                     AsyncImage(url: url) { image in image.resizable().scaledToFill() }
-                    placeholder: { placeholder }
-                } else { placeholder }
+                        placeholder: { placeholder }
+                } else {
+                    placeholder
+                }
             }
             .frame(width: size.size.width, height: size.size.height).clipped()
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .accessibilityHidden(true)
     }
+
     private var placeholder: some View {
         ZStack {
             LinearGradient(colors: [.indigo, .black], startPoint: .topLeading, endPoint: .bottomTrailing)

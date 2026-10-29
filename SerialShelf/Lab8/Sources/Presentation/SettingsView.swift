@@ -14,7 +14,10 @@ struct SettingsView: View {
                 Text("Коллекция — SwiftData. Настройки — UserDefaults.").font(.footnote).foregroundStyle(.secondary)
             }
             Section("Источники") {
-                Link("TVmaze · данные и изображения · CC BY-SA", destination: URL(string: "https://www.tvmaze.com/api")!)
+                Link(
+                    "TVmaze · данные и изображения · CC BY-SA",
+                    destination: URL(string: "https://www.tvmaze.com/api")!
+                )
                 Text("Каталог не предоставляет просмотр видео и не распространяет серии.")
                     .font(.caption).foregroundStyle(.secondary)
             }

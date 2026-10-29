@@ -1,11 +1,12 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor final class SettingsStore: ObservableObject {
     private let defaults: UserDefaults?
     @Published var newestFirst: Bool {
         didSet { defaults?.set(newestFirst, forKey: "library.newestFirst") }
     }
+
     @Published var darkMode: Bool {
         didSet { defaults?.set(darkMode, forKey: "appearance.darkMode") }
     }

@@ -25,9 +25,14 @@ import SwiftUI
         WindowGroup {
             Group {
                 if let startupError {
-                    ContentUnavailableView("Не удалось открыть данные", systemImage: "externaldrive.badge.exclamationmark",
-                        description: Text(startupError + " Данные не удалены. Перезапусти приложение."))
-                } else { RootView(library: library, shows: shows) }
+                    ContentUnavailableView(
+                        "Не удалось открыть данные",
+                        systemImage: "externaldrive.badge.exclamationmark",
+                        description: Text(startupError + " Данные не удалены. Перезапусти приложение.")
+                    )
+                } else {
+                    RootView(library: library, shows: shows)
+                }
             }
             .environmentObject(settings).tint(ShelfStyle.accent)
             .preferredColorScheme(settings.darkMode ? .dark : .light)
@@ -43,17 +48,28 @@ struct RootView: View {
             NavigationStack {
                 if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
                     CatalogView(library: library, shows: shows)
-                } else { RemoteCatalogView(library: library) }
+                } else {
+                    RemoteCatalogView(library: library)
+                }
             }.tabItem { Label("Каталог", systemImage: "square.grid.2x2") }
             NavigationStack { LibraryView(model: library) }
                 .tabItem { Label("Моя полка", systemImage: "bookmark") }
-            NavigationStack { AnalysisView(entries: library.entries) }.tabItem { Label("Статистика", systemImage: "chart.bar") }
+            NavigationStack { AnalysisView(entries: library.entries) }.tabItem { Label(
+                "Статистика",
+                systemImage: "chart.bar"
+            ) }
             NavigationStack { SettingsView() }
                 .tabItem { Label("Настройки", systemImage: "slider.horizontal.3") }
         }
-        .alert("Не удалось выполнить действие", isPresented: Binding(get: { library.errorMessage != nil },
-            set: { if !$0 { library.errorMessage = nil } })) {
-                Button("OK") { library.errorMessage = nil }
-            } message: { Text(library.errorMessage ?? "") }
+        .alert("Не удалось выполнить действие", isPresented: Binding(
+            get: { library.errorMessage != nil },
+            set: {
+                if !$0 {
+                    library.errorMessage = nil
+                }
+            }
+        )) {
+            Button("OK") { library.errorMessage = nil }
+        } message: { Text(library.errorMessage ?? "") }
     }
 }

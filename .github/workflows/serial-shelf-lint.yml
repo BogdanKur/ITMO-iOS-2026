@@ -2,7 +2,7 @@ name: SerialShelf Lab 8 SwiftLint
 on:
   push:
     branches: [serial-shelf]
-    paths: [.github/workflows/serial-shelf-lint.yml]
+    paths: [SerialShelf/Lab8/**, .github/workflows/serial-shelf-lint.yml, .github/scripts/lint_shelf.py]
   workflow_dispatch:
     inputs:
       fix:
@@ -21,7 +21,7 @@ jobs:
         run: brew install swiftlint swiftformat xcodegen
       - name: Lint, generate project and run XCTest
         env:
-          APPLY_FIX: ${{ inputs.fix || github.event_name == 'push' }}
+          APPLY_FIX: ${{ inputs.fix || false }}
         run: python3 .github/scripts/lint_shelf.py
       - uses: actions/upload-artifact@v4
         if: always()

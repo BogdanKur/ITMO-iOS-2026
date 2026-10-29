@@ -1,11 +1,20 @@
-import XCTest
 @testable import SerialShelf
+import XCTest
 
 final class LibraryTests: XCTestCase {
-    let show = Show(id: 1, name: "Test Show", year: "2020", genres: ["Drama"],
-        summary: "Story", runtime: 45, rating: 8, imageURL: nil, sourceURL: "https://www.tvmaze.com")
+    let show = Show(
+        id: 1,
+        name: "Test Show",
+        year: "2020",
+        genres: ["Drama"],
+        summary: "Story",
+        runtime: 45,
+        rating: 8,
+        imageURL: nil,
+        sourceURL: "https://www.tvmaze.com"
+    )
 
-    @MainActor func testCRUDAndDuplicateProtection() async throws {
+    @MainActor func testCRUDAndDuplicateProtection() throws {
         let repository = MemoryLibraryRepository()
         let model = LibraryViewModel(repository: repository)
         XCTAssertTrue(model.add(show))
@@ -26,7 +35,7 @@ final class LibraryTests: XCTestCase {
         XCTAssertTrue(model.entries.isEmpty)
     }
 
-    @MainActor func testValidationBoundaries() async throws {
+    @MainActor func testValidationBoundaries() throws {
         let repository = MemoryLibraryRepository()
         let model = LibraryViewModel(repository: repository)
         XCTAssertTrue(model.add(show))
@@ -47,7 +56,7 @@ final class LibraryTests: XCTestCase {
         XCTAssertNil(model.errorMessage)
     }
 
-    @MainActor func testRepositoryErrorsAndRecovery() async throws {
+    @MainActor func testRepositoryErrorsAndRecovery() {
         let repository = FaultRepository()
         repository.failure = .read
         let model = LibraryViewModel(repository: repository)
@@ -75,12 +84,20 @@ final class LibraryTests: XCTestCase {
     var failure: Operation?
     private var records: [Int: LibraryEntry] = [:]
     func fetch() throws -> [LibraryEntry] {
-        if failure == .read { throw Failure() }; return Array(records.values)
+        if failure == .read {
+            throw Failure()
+        }; return Array(records.values)
     }
+
     func save(_ entry: LibraryEntry) throws {
-        if failure == .save { throw Failure() }; records[entry.id] = entry
+        if failure == .save {
+            throw Failure()
+        }; records[entry.id] = entry
     }
+
     func delete(id: Int) throws {
-        if failure == .delete { throw Failure() }; records[id] = nil
+        if failure == .delete {
+            throw Failure()
+        }; records[id] = nil
     }
 }

@@ -20,9 +20,11 @@ struct ShowDetailView: View {
                 Button {
                     library.add(show)
                 } label: {
-                    Label(library.contains(show) ? "В коллекции" : "Буду смотреть",
-                          systemImage: library.contains(show) ? "checkmark" : "plus")
-                        .frame(maxWidth: .infinity).padding(7)
+                    Label(
+                        library.contains(show) ? "В коллекции" : "Буду смотреть",
+                        systemImage: library.contains(show) ? "checkmark" : "plus"
+                    )
+                    .frame(maxWidth: .infinity).padding(7)
                 }
                 .buttonStyle(.borderedProminent).disabled(library.contains(show))
                 .accessibilityIdentifier("addToLibrary")
