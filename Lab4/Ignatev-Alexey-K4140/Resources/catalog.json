@@ -1,0 +1,89 @@
+[
+  {
+    "id": 169,
+    "name": "Breaking Bad",
+    "year": "2008",
+    "genres": [
+      "Drama",
+      "Crime",
+      "Thriller"
+    ],
+    "summary": "Breaking Bad follows protagonist Walter White, a chemistry teacher who lives in New Mexico with his wife and teenage son who has cerebral palsy. White is diagnosed with Stage III cancer and given a prognosis of two years left to live. With a new sense of fearlessness based on his medical prognosis, and a desire to secure his family's financial security, White chooses to enter a dangerous world of drugs and crime and ascends to power in this world. The series explores how a fatal diagnosis such as White's releases a typical man from the daily concerns and constraints of normal society and follows his transformation from mild family man to a kingpin of the drug trade.",
+    "runtime": 60,
+    "rating": 9.2,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/169/breaking-bad"
+  },
+  {
+    "id": 82,
+    "name": "Game of Thrones",
+    "year": "2011",
+    "genres": [
+      "Drama",
+      "Adventure",
+      "Fantasy"
+    ],
+    "summary": "Based on the bestselling book series A Song of Ice and Fire by George R.R. Martin, this sprawling new HBO drama is set in a world where summers span decades and winters can last a lifetime. From the scheming south and the savage eastern lands, to the frozen north and ancient Wall that protects the realm from the mysterious darkness beyond, the powerful families of the Seven Kingdoms are locked in a battle for the Iron Throne. This is a story of duplicity and treachery, nobility and honor, conquest and triumph. In the Game of Thrones, you either win or you die.",
+    "runtime": 61,
+    "rating": 8.9,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/498/1245274.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/82/game-of-thrones"
+  },
+  {
+    "id": 431,
+    "name": "Friends",
+    "year": "1994",
+    "genres": [
+      "Comedy",
+      "Romance"
+    ],
+    "summary": "Six young (20-something) people from New York City (Manhattan), on their own and struggling to survive in the real world, find the companionship, comfort and support they get from each other to be the perfect antidote to the pressures of life.This average group of buddies goes through massive mayhem, family trouble, past and future romances, fights, laughs, tears and surprises as they learn what it really means to be a friend.",
+    "runtime": 30,
+    "rating": 8.5,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/41/104565.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/431/friends"
+  },
+  {
+    "id": 1371,
+    "name": "Westworld",
+    "year": "2016",
+    "genres": [
+      "Drama",
+      "Science-Fiction",
+      "Western"
+    ],
+    "summary": "Westworld is a dark odyssey about the dawn of artificial consciousness and the evolution of sin. Set at the intersection of the near future and the reimagined past, it explores a world in which every human appetite, no matter how noble or depraved, can be indulged.",
+    "runtime": 63,
+    "rating": 8.2,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/445/1113927.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/1371/westworld"
+  },
+  {
+    "id": 618,
+    "name": "Better Call Saul",
+    "year": "2015",
+    "genres": [
+      "Drama",
+      "Crime",
+      "Legal"
+    ],
+    "summary": "Better Call Saul is the prequel to the award-winning series Breaking Bad, set six years before Saul Goodman became Walter White's lawyer. When we meet him, the man who will become Saul Goodman is known as Jimmy McGill, a small-time lawyer searching for his destiny, and, more immediately, hustling to make ends meet. Working alongside, and often against, Jimmy is \"fixer\" Mike Ehrmantraut, a beloved character introduced in Breaking Bad. The series will track Jimmy's transformation into Saul Goodman, the man who puts \"criminal\" in \"criminal lawyer.",
+    "runtime": 64,
+    "rating": 8.6,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/618/better-call-saul"
+  },
+  {
+    "id": 526,
+    "name": "The Office",
+    "year": "2005",
+    "genres": [
+      "Comedy"
+    ],
+    "summary": "Steve Carell stars in The Office, a fresh and funny mockumentary-style glimpse into the daily interactions of the eccentric workers at the Dunder Mifflin paper supply company. Based on the smash-hit British series of the same name and adapted for American Television by Greg Daniels, this fast-paced comedy parodies contemporary American water-cooler culture. Earnest but clueless regional manager Michael Scott believes himself to be an exceptional boss and mentor, but actually receives more eye-rolls than respect from his oddball staff.",
+    "runtime": 30,
+    "rating": 8.5,
+    "imageURL": "https://static.tvmaze.com/uploads/images/medium_portrait/481/1204342.jpg",
+    "sourceURL": "https://www.tvmaze.com/shows/526/the-office"
+  }
+]
